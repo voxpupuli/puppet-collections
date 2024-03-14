@@ -7,8 +7,12 @@
 # See https://github.com/puppetlabs/pdk-templates/blob/main/config_defaults.yml
 # for the default values.
 ---
-Gemfie:
+Gemfile:
   required:
+    ":development":
+      - gem: 'deep_merge'
+    ":release":
+      - gem: 'deep_merge'
 
 spec/spec_helper.rb:
   hiera_config: 'hiera-rspec.yaml'
