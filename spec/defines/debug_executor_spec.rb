@@ -2,12 +2,12 @@
 
 require 'spec_helper'
 
-describe 'collections::debug_list' do
+describe 'collections::debug_executor' do
   let(:title) { 'namevar' }
   let(:params) do
     {
         target: 'foo',
-        items: [1, 2, 3]
+        items: [1, 2, 3],
     }
   end
 

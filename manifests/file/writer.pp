@@ -7,7 +7,7 @@
 define collections::file::writer (
   String[1] $target,
   Array[Any] $items,
-  Hash $context
+  Hash[String,Any] $context,
 ) {
   # Collect the items together
   $set = [$context['data']] + $items

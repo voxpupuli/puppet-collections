@@ -29,9 +29,4 @@ define collections::file (
     resource => 'collections::file::writer',
     context  => $context
   }
-
-  collections::register_executor { "collections::file::debug::${collector}":
-    target   => "collections::file::${collector}",
-    resource => 'collections::debug_list',
-  }
 }

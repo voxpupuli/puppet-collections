@@ -17,11 +17,12 @@ define collections::iterator (
     ensure_resource(
       $resource,
       "${title}::executor",
-      {
-        target  => $title,
-        items   => $items,
-        context => $context
-      }
+      collections::deep_merge({
+          target   => $title,
+          items    => $items,
+          context  => $context,
+        }, $defaults
+      )
     )
   }
 
