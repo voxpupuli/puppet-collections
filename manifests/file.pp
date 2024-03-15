@@ -9,15 +9,15 @@
 # within erb templates). As a convenience, a small set of templates are
 # predefined within the collections module to suit a few use cases:
 #
-# ## `collections/concat.erb`
+# #### `collections/concat.erb`
 # This template allows constructing a file from multiple content blocks, with
 # ordering based upon an optional `order` key. Fragments should contain a
 # `content` key. Order will default to 1000 if it is not supplied.
 #
-# ## `collections/yaml.erb`
+# #### `collections/yaml.erb`
 # This template will output the collected data as a YAML document
 #
-# ## `collections/json.erb`
+# #### `collections/json.erb`
 # This template will output the collected data as a JSON document
 #
 # @example

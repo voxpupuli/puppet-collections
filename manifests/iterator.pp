@@ -26,8 +26,8 @@
 define collections::iterator (
   Array[Any] $items,
 
-  Array[Struct[{resource=>String,parameters=>Hash}]] $executors,
-  Array[Struct[{resource=>String,parameters=>Hash}]] $actions,
+  Array[Struct[{ resource=> String,parameters=> Hash }]] $executors,
+  Array[Struct[{ resource=> String,parameters=> Hash }]] $actions,
 ) {
   collections::checkpoint { "collections::${title}::before-executors":
   }

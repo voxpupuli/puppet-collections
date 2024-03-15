@@ -46,8 +46,8 @@ EOF
       it { is_expected.to compile }
 
       it 'creates checkpoints' do
-        %w{ create foo }.each do |title|
-          %w{ before-executors after-executors before-actions after-actions completed }.each do |stage|
+        ['create', 'foo'].each do |title|
+          ['before-executors', 'after-executors', 'before-actions', 'after-actions', 'completed'].each do |stage|
             is_expected.to contain_collections__checkpoint("collections::#{title}::#{stage}")
           end
         end

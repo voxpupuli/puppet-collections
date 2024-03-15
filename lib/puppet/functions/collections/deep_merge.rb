@@ -8,10 +8,9 @@ require 'deep_merge'
 #
 # @see https://github.com/danielsdeleo/deep_merge?tab=readme-ov-file#options
 Puppet::Functions.create_function(:"collections::deep_merge") do
-
   # @param dest
   #   The destination object, which will be overridden by the contents of source
-  #   
+  #
   # @param source
   #   The source object, which will override the contents of dest
   #

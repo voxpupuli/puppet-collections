@@ -283,8 +283,32 @@ EOF
         )
         is_expected.to contain_notify('Collection file-test:').with(
           message: {
-            'items'=>[{ 'list' => [1], 'hash' => { 'one' => 1 } }, { 'list' => [2], 'hash' => { 'two' => 2 }, 'repl' => { 'not_two' => 7 } }, { 'hash' => { 'one' => 3 }, 'repl' => { 'not_two' => 2 } } ]
-          }
+            'items' => [
+              {
+                'list' => [1],
+                'hash' => {
+                  'one' => 1,
+                },
+              },
+              {
+                'list' => [2],
+                'hash' => {
+                  'two' => 2,
+                },
+                'repl' => {
+                  'not_two' => 7,
+                },
+              },
+              {
+                'hash' => {
+                  'one' => 3,
+                },
+                'repl' => {
+                  'not_two' => 2,
+                },
+              },
+            ],
+          },
         )
         is_expected.to contain_file('/tmp/collections-file-test').with(
           path: '/tmp/collections-file-test',

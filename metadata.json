@@ -1,10 +1,12 @@
 {
-  "name": "charlesc-collections",
-  "version": "0.1.0",
+  "name": "ccooke-collections",
+  "version": "0.1.1",
   "author": "charlesc",
-  "summary": "",
+  "summary": "Provide a means to work with collections of data - creating resources from lists of data, or creating files from multiple fragments",
   "license": "MIT",
-  "source": "",
+  "source": "https://github.com/ccooke/puppet-collections",
+  "project_page": "https://github.com/ccooke/puppet-collections",
+  "issues_url": "https://github.com/ccooke/puppet-collections/issues",
   "dependencies": [
     {
       "name": "puppetlabs-stdlib",

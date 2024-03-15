@@ -37,7 +37,7 @@
 #   one item from the collection.
 #
 define collections::tap (
-  String[1]$target,
+  String[1] $target,
   Any $item,
 ) {
   notify { "Collections::Tap: ${title}":

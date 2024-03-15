@@ -25,8 +25,7 @@ define collections::debug_executor (
   String[1] $target,
   Array[Any] $items,
 ) {
-
   notify { "Collection ${target}:":
-    message => { items => $items }
+    message => { items => $items },
   }
 }
