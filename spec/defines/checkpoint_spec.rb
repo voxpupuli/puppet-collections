@@ -2,13 +2,10 @@
 
 require 'spec_helper'
 
-describe 'collections::file::fragment' do
-  let(:title) { 'namevar' }
+describe 'collections::checkpoint' do
+  let(:title) { 'checkpoint' }
   let(:params) do
-    {
-      target: 'foo',
-      data: {}
-    }
+    {}
   end
 
   on_supported_os.each do |os, os_facts|

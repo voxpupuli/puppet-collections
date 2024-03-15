@@ -3,12 +3,11 @@
 require 'spec_helper'
 
 describe 'collections::iterator' do
-  let(:title) { 'namevar' }
+  let(:title) { 'iterator' }
   let(:params) do
     {
       items: [],
-      resources: [],
-      wrapped: [],
+      actions: [],
       executors: []
     }
   end
@@ -18,6 +17,14 @@ describe 'collections::iterator' do
       let(:facts) { os_facts }
 
       it { is_expected.to compile }
+
+      it 'creates checkpoints' do
+        %w{ iterator }.each do |title|
+          %w{ before-executors after-executors before-actions after-actions completed }.each do |stage|
+            is_expected.to contain_collections__checkpoint("collections::#{title}::#{stage}")
+          end
+        end
+      end
     end
   end
 end

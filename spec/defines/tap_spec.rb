@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe 'collections::tap' do
-  let(:title) { 'namevar' }
+  let(:title) { 'tap' }
   let(:params) do
     {
       target: 'foo',

@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe 'collections::create' do
-  let(:title) { 'namevar' }
+  let(:title) { 'create' }
   let(:params) do
     {}
   end
@@ -23,15 +23,13 @@ describe 'collections::create' do
   collections::register_action { 'Test: Add a define':
     target   => 'foo',
     resource => 'collections::tap',
-    wrapped  => true,
   }
-  
+
   # Register a defined type that will process all of the collected items, rather than being called
   # once per item. As with actions, multiple executors may be defined
   collections::register_executor { 'Test: Add an executor':
     target   => 'foo',
     resource => 'collections::debug_executor',
-    context  => {}
   }
 
   # Send four items through the stack
@@ -39,13 +37,21 @@ describe 'collections::create' do
   [1, 2, 3, 4].each |$num| {
     collections::append { "Add item ${num} to foo":
       target => 'foo',
-      item   => $num,
+      data   => $num,
     }
   }
 EOF
       end
 
       it { is_expected.to compile }
+
+      it 'creates checkpoints' do
+        %w{ create foo }.each do |title|
+          %w{ before-executors after-executors before-actions after-actions completed }.each do |stage|
+            is_expected.to contain_collections__checkpoint("collections::#{title}::#{stage}")
+          end
+        end
+      end
 
       it 'Creates an iterator' do
         is_expected.to contain_collections__create('foo').with(
@@ -58,36 +64,34 @@ EOF
           name: 'Test: Add a define',
           target: 'foo',
           resource: 'collections::tap',
-          wrapped: true,
         )
 
         is_expected.to contain_collections__register_executor('Test: Add an executor').with(
           name: 'Test: Add an executor',
           target: 'foo',
           resource: 'collections::debug_executor',
-          context: {},
         )
 
         is_expected.to contain_collections__append('Add item 1 to foo').with(
           name: 'Add item 1 to foo',
           target: 'foo',
-          item: 1,
+          data: 1,
         )
 
         is_expected.to contain_collections__append('Add item 2 to foo').with(
           name: 'Add item 2 to foo',
           target: 'foo',
-          item: 2,
+          data: 2,
         )
         is_expected.to contain_collections__append('Add item 3 to foo').with(
           name: 'Add item 3 to foo',
           target: 'foo',
-          item: 3,
+          data: 3,
         )
         is_expected.to contain_collections__append('Add item 4 to foo').with(
           name: 'Add item 4 to foo',
           target: 'foo',
-          item: 4,
+          data: 4,
         )
         is_expected.to contain_collections__iterator('foo').with(
           name: 'foo',
@@ -97,19 +101,18 @@ EOF
             3,
             4,
           ],
-          resources: [
-            'collections::tap',
-          ],
-          wrapped: [
-            'collections::tap',
+          actions: [
+            {
+              'resource' => 'collections::tap',
+              'parameters' => {},
+            },
           ],
           executors: [
             {
-              'r' => 'collections::debug_executor',
-              'c' => {},
+              'resource' => 'collections::debug_executor',
+              'parameters' => {},
             },
           ],
-          defaults: {},
         )
         is_expected.to contain_collections__debug_executor('foo::executor').with(
           name: 'foo::executor',
@@ -120,51 +123,42 @@ EOF
             3,
             4,
           ],
-          context: {},
         )
-        is_expected.to contain_collections__tap('foo:0:0').with(
-          name: 'foo:0:0',
+        is_expected.to contain_collections__tap('foo::1').with(
           target: 'foo',
           item: 1,
         )
-        is_expected.to contain_collections__tap('foo:0:1').with(
-          name: 'foo:0:1',
+        is_expected.to contain_collections__tap('foo::2').with(
           target: 'foo',
           item: 2,
         )
-        is_expected.to contain_collections__tap('foo:0:2').with(
-          name: 'foo:0:2',
+        is_expected.to contain_collections__tap('foo::3').with(
           target: 'foo',
           item: 3,
         )
-        is_expected.to contain_collections__tap('foo:0:3').with(
-          name: 'foo:0:3',
+        is_expected.to contain_collections__tap('foo::4').with(
           target: 'foo',
           item: 4,
         )
-        is_expected.to contain_notify('Collection foo: [1, 2, 3, 4]').with(
-          name: 'Collection foo: [1, 2, 3, 4]',
+        is_expected.to contain_notify('Collection foo:').with(
+          message: { 'items' => [1, 2, 3, 4] },
         )
-        is_expected.to contain_notify('Collections::Tap: foo:0:0').with(
-          name: 'Collections::Tap: foo:0:0',
+        is_expected.to contain_notify('Collections::Tap: foo::1').with(
           message: {
             'item' => 1,
           },
         )
-        is_expected.to contain_notify('Collections::Tap: foo:0:1').with(
-          name: 'Collections::Tap: foo:0:1',
+        is_expected.to contain_notify('Collections::Tap: foo::2').with(
           message: {
             'item' => 2,
           },
         )
-        is_expected.to contain_notify('Collections::Tap: foo:0:2').with(
-          name: 'Collections::Tap: foo:0:2',
+        is_expected.to contain_notify('Collections::Tap: foo::3').with(
           message: {
             'item' => 3,
           },
         )
-        is_expected.to contain_notify('Collections::Tap: foo:0:3').with(
-          name: 'Collections::Tap: foo:0:3',
+        is_expected.to contain_notify('Collections::Tap: foo::4').with(
           message: {
             'item' => 4,
           },

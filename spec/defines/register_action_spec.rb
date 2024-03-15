@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe 'collections::register_action' do
-  let(:title) { 'namevar' }
+  let(:title) { 'register_action' }
   let(:params) do
     {
       target: 'foo',

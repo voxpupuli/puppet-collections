@@ -3,11 +3,11 @@
 require 'spec_helper'
 
 describe 'collections::append' do
-  let(:title) { 'namevar' }
+  let(:title) { 'append' }
   let(:params) do
     {
       target: 'foo',
-      item: 1
+      data: 1
     }
   end
 

@@ -5,7 +5,7 @@
 # @example
 #   collections::append { 'User foo is an admin':
 #     target => 'users::admin-users',
-#     item   => {
+#     data   => {
 #       username => 'foo',
 #       uid      => 1001,
 #     },
@@ -14,14 +14,14 @@
 # @param [String[1]] target
 #   The target collection, created by `collection::create`
 #
-# @param [Any] item
+# @param [Any] data
 #   The item to be added to the target collection
 #
 define collections::append (
   String[1] $target,
-  Any $item
+  Any $data
 ) {
   Collections::Iterator <| title == $target |> {
-    items +> [$item]
+    items +> [$data]
   }
 }

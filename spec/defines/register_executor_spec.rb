@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe 'collections::register_executor' do
-  let(:title) { 'namevar' }
+  let(:title) { 'register_executor' }
   let(:params) do
     {
       target: 'foo',

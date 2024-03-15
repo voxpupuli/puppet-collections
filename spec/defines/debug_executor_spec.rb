@@ -3,11 +3,11 @@
 require 'spec_helper'
 
 describe 'collections::debug_executor' do
-  let(:title) { 'namevar' }
+  let(:title) { 'debug_executor' }
   let(:params) do
     {
-        target: 'foo',
-        items: [1, 2, 3],
+      target: 'foo',
+      items: [1, 2, 3],
     }
   end
 

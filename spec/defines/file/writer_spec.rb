@@ -3,18 +3,15 @@
 require 'spec_helper'
 
 describe 'collections::file::writer' do
-  let(:title) { 'namevar' }
+  let(:title) { 'writer' }
   let(:params) do
     {
       target: 'foo',
       items: [ {} ],
-      context: {
-        data: {},
-        file: {
-          path: '/foo/bar',
-        },
-        template: 'collections/file-test.erb'
-      }
+      file: {
+        path: '/foo/bar',
+      },
+      template: 'collections/file-test.erb'
     }
   end
 

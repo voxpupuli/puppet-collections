@@ -15,8 +15,6 @@ describe 'collections::file' do
     context "on #{os}" do
       let(:facts) { os_facts }
 
-      it { is_expected.to compile }
-
       let(:pre_condition) do
         <<EOF
   collections::file { '/tmp/collections-file-test':
@@ -35,11 +33,11 @@ describe 'collections::file' do
   }
 
   collections::register_executor { 'collections::file::debug::file-test':
-    target   => 'collections::file::file-test',
+    target   => 'file-test',
     resource => 'collections::debug_executor'
   }
 
-  collections::file::fragment { 'Add two':
+  collections::append { 'Add two':
     target => 'file-test',
     data   => {
       list => [ 2 ],
@@ -48,20 +46,31 @@ describe 'collections::file' do
     },
   }
 
-  collections::file::fragment { 'Overwrite':
+  collections::append { 'Overwrite':
     target => 'file-test',
     data   => {
       hash => { one => 3 },
       repl => { not_two => 2 },
     },
+    require => Collections::Append['Add two']
   }
 EOF
       end
 
+      it { is_expected.to compile }
+
       # it { generate('Creates a file') }
       ### BEGIN GENERATED TESTS: Creates a file ###
-      it 'Creates a file' do
 
+      it 'creates checkpoints' do
+        is_expected.to contain_collections__checkpoint('collections::file-test::before-executors')
+        is_expected.to contain_collections__checkpoint('collections::file-test::after-executors')
+        is_expected.to contain_collections__checkpoint('collections::file-test::before-actions')
+        is_expected.to contain_collections__checkpoint('collections::file-test::after-actions')
+        is_expected.to contain_collections__checkpoint('collections::file-test::completed')
+      end
+
+      it 'Creates a file' do
         is_expected.to contain_collections__file('/tmp/collections-file-test').with(
           name: '/tmp/collections-file-test',
           collector: 'file-test',
@@ -70,7 +79,6 @@ EOF
             'owner' => 'root',
             'group' => 'root',
             'mode' => '0644',
-            'path' => '/tmp/collections-file-test',
           },
           data: {
             'list' => [
@@ -80,10 +88,8 @@ EOF
               'one' => 1,
             },
           },
-          path: '/tmp/collections-file-test',
-          ensure: 'present',
         )
-        is_expected.to contain_collections__file__fragment('Add two').with(
+        is_expected.to contain_collections__append('Add two').with(
           name: 'Add two',
           target: 'file-test',
           data: {
@@ -98,7 +104,7 @@ EOF
             },
           },
         )
-        is_expected.to contain_collections__file__fragment('Overwrite').with(
+        is_expected.to contain_collections__append('Overwrite').with(
           name: 'Overwrite',
           target: 'file-test',
           data: {
@@ -110,16 +116,15 @@ EOF
             },
           },
         )
-        is_expected.to contain_collections__create('collections::file::file-test').with(
-          name: 'collections::file::file-test',
-          target: 'collections::file::file-test',
+        is_expected.to contain_collections__create('file-test').with(
+          target: 'file-test',
           defaults: {},
         )
         is_expected.to contain_collections__register_executor('collections::file::writer::file-test').with(
           name: 'collections::file::writer::file-test',
-          target: 'collections::file::file-test',
+          target: 'file-test',
           resource: 'collections::file::writer',
-          context: {
+          parameters: {
             'file' => {
               'owner' => 'root',
               'group' => 'root',
@@ -127,26 +132,16 @@ EOF
               'path' => '/tmp/collections-file-test',
             },
             'template' => 'collections/file-test.erb',
-            'data' => {
-              'list' => [
-                1,
-              ],
-              'hash' => {
-                'one' => 1,
-              },
-            },
           },
         )
         is_expected.to contain_collections__register_executor('collections::file::debug::file-test').with(
           name: 'collections::file::debug::file-test',
-          target: 'collections::file::file-test',
+          target: 'file-test',
           resource: 'collections::debug_executor',
-          context: {},
         )
-        is_expected.to contain_collections__append('file-test::Add two').with(
-          name: 'file-test::Add two',
-          target: 'collections::file::file-test',
-          item: {
+        is_expected.to contain_collections__append('Add two').with(
+          target: 'file-test',
+          data: {
             'list' => [
               2,
             ],
@@ -158,10 +153,9 @@ EOF
             },
           },
         )
-        is_expected.to contain_collections__append('file-test::Overwrite').with(
-          name: 'file-test::Overwrite',
-          target: 'collections::file::file-test',
-          item: {
+        is_expected.to contain_collections__append('Overwrite').with(
+          target: 'file-test',
+          data: {
             'hash' => {
               'one' => 3,
             },
@@ -170,9 +164,12 @@ EOF
             },
           },
         )
-        is_expected.to contain_collections__iterator('collections::file::file-test').with(
-          name: 'collections::file::file-test',
+        is_expected.to contain_collections__iterator('file-test').with(
           items: [
+            {
+              'list' => [ 1 ],
+              'hash' => { 'one' => 1 }
+            },
             {
               'list' => [
                 2,
@@ -193,16 +190,15 @@ EOF
               },
             },
           ],
-          resources: [],
-          wrapped: [],
+          actions: [],
           executors: [
             {
-              'r' => 'collections::debug_executor',
-              'c' => {},
+              'resource' => 'collections::debug_executor',
+              'parameters' => {},
             },
             {
-              'r' => 'collections::file::writer',
-              'c' => {
+              'resource' => 'collections::file::writer',
+              'parameters' => {
                 'file' => {
                   'owner' => 'root',
                   'group' => 'root',
@@ -210,31 +206,27 @@ EOF
                   'path' => '/tmp/collections-file-test',
                 },
                 'template' => 'collections/file-test.erb',
-                'data' => {
-                  'list' => [
-                    1,
-                  ],
-                  'hash' => {
-                    'one' => 1,
-                  },
-                },
               },
             },
           ],
-          defaults: {},
         )
-        is_expected.to contain_collections__file__writer('collections::file::file-test::executor').with(
-          name: 'collections::file::file-test::executor',
-          target: 'collections::file::file-test',
+        is_expected.to contain_collections__file__writer('file-test::executor').with(
+          target: 'file-test',
           items: [
             {
               'list' => [
-                2,
                 1,
               ],
               'hash' => {
+                'one' => 1
+              },
+            },
+            {
+              'list' => [
+                2,
+              ],
+              'hash' => {
                 'two' => 2,
-                'one' => 1,
               },
               'repl' => {
                 'not_two' => 7,
@@ -243,39 +235,31 @@ EOF
             {
               'hash' => {
                 'one' => 3,
-                'two' => 2,
               },
               'repl' => {
                 'not_two' => 2,
               },
-              'list' => [
-                2,
-                1,
-              ],
             },
           ],
-          context: {
-            'file' => {
-              'owner' => 'root',
-              'group' => 'root',
-              'mode' => '0644',
-              'path' => '/tmp/collections-file-test',
-            },
-            'template' => 'collections/file-test.erb',
-            'data' => {
-              'list' => [
-                1,
-              ],
-              'hash' => {
-                'one' => 1,
-              },
-            },
+          'file' => {
+            'owner' => 'root',
+            'group' => 'root',
+            'mode' => '0644',
+            'path' => '/tmp/collections-file-test',
           },
+          'template' => 'collections/file-test.erb',
         )
-        is_expected.to contain_collections__debug_executor('collections::file::file-test::executor').with(
-          name: 'collections::file::file-test::executor',
-          target: 'collections::file::file-test',
+        is_expected.to contain_collections__debug_executor('file-test::executor').with(
+          target: 'file-test',
           items: [
+            {
+              'list' => [
+                1,
+              ],
+              'hash' => {
+                'one' => 1
+              },
+            },
             {
               'list' => [
                 2,
@@ -296,10 +280,11 @@ EOF
               },
             },
           ],
-          context: {},
         )
-        is_expected.to contain_notify('{owner => root, group => root, mode => 0644, path => /tmp/collections-file-test}').with(
-          name: '{owner => root, group => root, mode => 0644, path => /tmp/collections-file-test}',
+        is_expected.to contain_notify('Collection file-test:').with(
+          message: {
+            'items'=>[{ 'list' => [1], 'hash' => { 'one' => 1 } }, { 'list' => [2], 'hash' => { 'two' => 2 }, 'repl' => { 'not_two' => 7 } }, { 'hash' => { 'one' => 3 }, 'repl' => { 'not_two' => 2 } } ]
+          }
         )
         is_expected.to contain_file('/tmp/collections-file-test').with(
           path: '/tmp/collections-file-test',
@@ -308,66 +293,48 @@ EOF
           mode: '0644',
           content: '{"hash"=>{"one"=>3, "two"=>2}, "repl"=>{"not_two"=>2}, "list"=>[2, 1]}',
         )
-        is_expected.to contain_notify('Collection collections::file::file-test: [{list => [2], hash => {two => 2}, repl => {not_two => 7}}, {hash => {one => 3}, repl => {not_two => 2}}]').with(
-          name: 'Collection collections::file::file-test: [{list => [2], hash => {two => 2}, repl => {not_two => 7}}, {hash => {one => 3}, repl => {not_two => 2}}]',
-        )
 
-        is_expected.to contain_collections__create('collections::file::foo').with(
-          name: 'collections::file::foo',
-          target: 'collections::file::foo',
+        is_expected.to contain_collections__create('foo').with(
+          target: 'foo',
           defaults: {},
         )
         is_expected.to contain_collections__register_executor('collections::file::writer::foo').with(
-          name: 'collections::file::writer::foo',
-          target: 'collections::file::foo',
+          target: 'foo',
           resource: 'collections::file::writer',
-          context: {
+          parameters: {
             'file' => {
               'path' => '/foo/bar',
             },
             'template' => 'collections/file-test.erb',
-            'data' => {},
           },
         )
-        is_expected.to contain_collections__iterator('collections::file::foo').with(
-          name: 'collections::file::foo',
+        is_expected.to contain_collections__iterator('foo').with(
           items: [],
-          resources: [],
-          wrapped: [],
+          actions: [],
           executors: [
             {
-              'r' => 'collections::file::writer',
-              'c' => {
+              'resource' => 'collections::file::writer',
+              'parameters' => {
                 'file' => {
                   'path' => '/foo/bar',
                 },
                 'template' => 'collections/file-test.erb',
-                'data' => {},
               },
             },
           ],
-          defaults: {},
         )
-        is_expected.to contain_collections__file__writer('collections::file::foo::executor').with(
-          name: 'collections::file::foo::executor',
-          target: 'collections::file::foo',
+        is_expected.to contain_collections__file__writer('foo::executor').with(
+          target: 'foo',
           items: [],
-          context: {
-            'file' => {
-              'path' => '/foo/bar',
-            },
-            'template' => 'collections/file-test.erb',
-            'data' => {},
+          'file' => {
+            'path' => '/foo/bar',
           },
-        )
-        is_expected.to contain_notify('{path => /foo/bar}').with(
-          name: '{path => /foo/bar}',
+          'template' => 'collections/file-test.erb',
         )
         is_expected.to contain_file('/foo/bar').with(
           path: '/foo/bar',
-          content: '{}',
+          content: '',
         )
-
       end
       ### END GENERATED TESTS: Creates a file ###
     end

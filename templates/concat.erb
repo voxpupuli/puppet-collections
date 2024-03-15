@@ -1,0 +1,13 @@
+<%=
+  # Sort the fragments by a provided 'order' key and by their definition order
+  fragments = @data['concat'].map.with_index { |fragment,index|
+    [ fragment, [fragment['order'] || 1000, index] ]
+  }.sort_by { |(fragment, sortkey)|
+    sortkey
+  }.map { |(fragment, sortkey)|
+    fragment['content']
+  }
+  
+  # Merge the fragments together
+  fragments.join("\n")
+%>
