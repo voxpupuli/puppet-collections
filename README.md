@@ -5,6 +5,11 @@
 1. [Description](#description)
 1. [Setup - The basics of getting started with collections](#setup)
 1. [Usage - Configuration options and additional functionality](#usage)
+  1. [A simple example](#a-simple-example)
+  1. [Creating a file](#creating-a-file)
+    1. [Concat](#concat)
+    1. [YAML](#yaml)
+    1. [JSON](#json)
 1. [Limitations - OS compatibility, etc.](#limitations)
 1. [Development - Guide for contributing to the module](#development)
 
@@ -27,29 +32,157 @@ own codebase using it are:
 
 ## Setup
 
-There should not be much setup required. 
+Collections uses the Ruby `deep_merge` gem which can recursively merge both
+hashes and arrays.
 
 ## Usage
 
-Creating a file with
+### A simple example
 
+Here's an example of how you could use Collections to allow modules to easily
+define additional functionality for admin users:
+
+First, in a module handling your users, create some collections:
+```puppet
+  # During initialisation
+  collections::create { 'all-users': }
+  collections::create { 'admin-users': }
+```
+
+Then in a class that handles creation of users:
+```puppet
+  $configured_users.each |$name, $user| {
+    # ... Configure the user
+
+    collections::append { "user ${name}":
+      target => 'all-users',
+      data   => {
+        $name => $user,
+      },
+    }
+
+    if $is_admin_user {
+      collections::append { "${name} is an admin":
+        target => 'admin-users',
+        data   => {
+          $name => $user,
+        },
+      }
+    }
+  }
+```
+
+You can now add dependent resources to the collections. For example, if you
+install a database server, you might want every admin user to have access to
+the database.
+
+In your database configuration module, you can now define a type to give admin
+access:
+```puppet
+define datbase::admin_user (
+  String[1] $target, # The name of the collection (in case of reuse)
+  Any $item, # The item passed in. In this example a hash: { $name => $user }
+) {
+  # ... configure this user as an admin
+}
+```
+
+And add the following to the class that installs the database server:
+```puppet
+  collections::register_action { 'Admin users get database access':
+    target   => 'admin-users',
+    resource => 'database::admin_user',
+  }
+```
+
+### Creating a file
+
+A common use case is to allow multiple actors to contribute to a file. A small
+suite of convenience functions have been added to Collections for this use
+case. These are built on top of `collections::create`, `collections::append`,
+and so on.
+
+To create a file, first declare it with `collections::file`. The following
+example uses the built-in YAML template, which will take all the items in
+the collection, merge them in order and write the result to the file as
+YAML:
+```puppet
+  collections::file { '/path/to/file.yaml':
+    collector => 'app-config-file',
+    template  => 'collections/yaml.erb',
+    file      => {
+      owner => 'root',
+      group => 'root',
+      mode  => '0640',
+    },
+    data      => {
+      config => {
+        user => 'nobody',
+      },
+    },
+  }
+```
+(`data` passed above is optional, a first item for the collection).
+
+You can then add data to the file using collections::append:
+```puppet
+  collections::append { 'App: Set chroot options':
+    target => 'app-config-file',
+    data   => {
+      config => {
+        use_chroot => true,
+        chroot_dir => '/var/spool/app/chroot',
+      },
+    },
+  }
+```
+
+#### Concat
+Template name: `collections/concat.erb`
+
+This allows for joining individual content blocks together, with some inbuilt
+ordering. It expects the `data` key to be a hash containing two items:
+* `order` - An Integer used as a primary sort key for the items. Default: 1000
+* `content` - A string to write to the file.
+
+Sorting is by the `order` key first, then by definition order. You can omit
+the `order` key entirely if you wish to use only Puppet's resource ordering.
+
+Example:
+```puppet
+collections::append { 'Append to a concat file':
+  target => 'a-collection-using-the-concat-template',
+  data   => {
+    order   => 100,
+    content => 'Some string content for the file',
+  },
+}
+```
+
+#### YAML
+Template name: `collections/yaml.erb`
+
+Takes any sequence of `data` items and sequentially merges them together with
+`deep_merge`, then converts the result to YAML and writes it to a file.
+
+#### JSON
+Template name: `collections/json.erb`
+
+Takes any sequence of `data` items and sequentially merges them together with
+`deep_merge`, then converts the result to JSON and writes it to a file.
+
+### Testing
+
+One of the core design goals for this module was to be able to have distributed
+actions without impacting the ability to test. Because the core 'engine' in the
+module is standard Puppet resource execution and ordering, there are no special
+tricks or techniques. If you use `collection::file` to create a file, you can
+then test for a `file` resource with the expected `content` field, just as if
+you created it directly.
 
 ## Limitations
 
-In the Limitations section, list any incompatibilities, known issues, or other
-warnings.
 
 ## Development
 
-In the Development section, tell other users the ground rules for contributing
-to your project and how they should submit their work.
 
-## Release Notes/Contributors/Etc. **Optional**
-
-If you aren't using changelog, put your release notes here (though you should
-consider using changelog). You can also add any additional sections you feel are
-necessary or important to include here. Please use the `##` header.
-
-[1]: https://puppet.com/docs/pdk/latest/pdk_generating_modules.html
-[2]: https://puppet.com/docs/puppet/latest/puppet_strings.html
-[3]: https://puppet.com/docs/puppet/latest/puppet_strings_style.html
