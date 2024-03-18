@@ -93,7 +93,7 @@ EOF
           target: 'foo',
           data: 4,
         )
-        is_expected.to contain_collections__iterator('foo').with(
+        is_expected.to contain_collections__commit('foo').with(
           name: 'foo',
           items: [
             1,
@@ -114,8 +114,7 @@ EOF
             },
           ],
         )
-        is_expected.to contain_collections__debug_executor('foo::executor').with(
-          name: 'foo::executor',
+        is_expected.to contain_collections__debug_executor('foo::executor::1').with(
           target: 'foo',
           items: [
             1,
@@ -163,6 +162,8 @@ EOF
             'item' => 4,
           },
         )
+        is_expected.to contain_collections__iterator('create')
+        is_expected.to contain_collections__commit('create')
       end
     end
   end

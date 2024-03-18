@@ -26,7 +26,3 @@
 .envrc
 /inventory.yaml
 /spec/fixtures/litmus_inventory.yaml
-/spec/fixtures/modules/collections
-.sync.yml
-.sync-local.yml
-/spec/data/common.yaml

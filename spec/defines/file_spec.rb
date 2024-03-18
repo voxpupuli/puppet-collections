@@ -7,7 +7,7 @@ describe 'collections::file' do
   let(:params) do
     {
       collector: 'foo',
-      template: 'collections/file-test.erb'
+      template: 'collections/yaml.erb'
     }
   end
 
@@ -19,7 +19,7 @@ describe 'collections::file' do
         <<EOF
   collections::file { '/tmp/collections-file-test':
     collector => 'file-test',
-    template  => 'collections/file-test.erb',
+    template  => 'collections/yaml.erb',
     file      => {
       # options to be passed to the file resource
       owner   => root,
@@ -74,7 +74,7 @@ EOF
         is_expected.to contain_collections__file('/tmp/collections-file-test').with(
           name: '/tmp/collections-file-test',
           collector: 'file-test',
-          template: 'collections/file-test.erb',
+          template: 'collections/yaml.erb',
           file: {
             'owner' => 'root',
             'group' => 'root',
@@ -131,7 +131,9 @@ EOF
               'mode' => '0644',
               'path' => '/tmp/collections-file-test',
             },
-            'template' => 'collections/file-test.erb',
+            'template' => 'collections/yaml.erb',
+            'merge_options' => {},
+            'reverse_merge_order' => false,
           },
         )
         is_expected.to contain_collections__register_executor('collections::file::debug::file-test').with(
@@ -164,7 +166,8 @@ EOF
             },
           },
         )
-        is_expected.to contain_collections__iterator('file-test').with(
+        is_expected.to contain_collections__iterator('file-test')
+        is_expected.to contain_collections__commit('file-test').with(
           items: [
             {
               'list' => [ 1 ],
@@ -205,12 +208,14 @@ EOF
                   'mode' => '0644',
                   'path' => '/tmp/collections-file-test',
                 },
-                'template' => 'collections/file-test.erb',
+                'template' => 'collections/yaml.erb',
+                'merge_options' => {},
+                'reverse_merge_order' => false,
               },
             },
           ],
         )
-        is_expected.to contain_collections__file__writer('file-test::executor').with(
+        is_expected.to contain_collections__file__writer('file-test::executor::2').with(
           target: 'file-test',
           items: [
             {
@@ -247,9 +252,9 @@ EOF
             'mode' => '0644',
             'path' => '/tmp/collections-file-test',
           },
-          'template' => 'collections/file-test.erb',
+          'template' => 'collections/yaml.erb',
         )
-        is_expected.to contain_collections__debug_executor('file-test::executor').with(
+        is_expected.to contain_collections__debug_executor('file-test::executor::1').with(
           target: 'file-test',
           items: [
             {
@@ -310,12 +315,13 @@ EOF
             ],
           },
         )
+
         is_expected.to contain_file('/tmp/collections-file-test').with(
           path: '/tmp/collections-file-test',
           owner: 'root',
           group: 'root',
           mode: '0644',
-          content: '{"hash"=>{"one"=>3, "two"=>2}, "repl"=>{"not_two"=>2}, "list"=>[2, 1]}',
+          content: "---\nlist:\n- 1\n- 2\nhash:\n  one: 1\n  two: 2\nrepl:\n  not_two: 7\n",
         )
 
         is_expected.to contain_collections__create('foo').with(
@@ -329,10 +335,13 @@ EOF
             'file' => {
               'path' => '/foo/bar',
             },
-            'template' => 'collections/file-test.erb',
+            'template' => 'collections/yaml.erb',
+            'merge_options' => {},
+            'reverse_merge_order' => false,
           },
         )
-        is_expected.to contain_collections__iterator('foo').with(
+        is_expected.to contain_collections__iterator('foo')
+        is_expected.to contain_collections__commit('foo').with(
           items: [],
           actions: [],
           executors: [
@@ -342,22 +351,27 @@ EOF
                 'file' => {
                   'path' => '/foo/bar',
                 },
-                'template' => 'collections/file-test.erb',
+                'template' => 'collections/yaml.erb',
+                'merge_options' => {},
+                'reverse_merge_order' => false,
               },
             },
           ],
         )
-        is_expected.to contain_collections__file__writer('foo::executor').with(
+        is_expected.to contain_collections__file__writer('foo::executor::1').with(
           target: 'foo',
           items: [],
           'file' => {
             'path' => '/foo/bar',
           },
-          'template' => 'collections/file-test.erb',
+          'template' => 'collections/yaml.erb',
+          'merge_options' => {},
+          'reverse_merge_order' => false,
         )
+
         is_expected.to contain_file('/foo/bar').with(
           path: '/foo/bar',
-          content: '',
+          content: "--- \n",
         )
       end
       ### END GENERATED TESTS: Creates a file ###

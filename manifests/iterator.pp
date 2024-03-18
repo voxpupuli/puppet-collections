@@ -1,16 +1,13 @@
-# @summary The resource that calls actions and executors upon a collection
+# @api private
+# @summary Wrapper resource to allow predictable resource ordering
 #
-# Each collection has a `collection::iterator` which collects the items being
-# appended to it and subsequently creates actions to operate on all the items
-# together ('executors') or for each item in turn ('actions').
-#
-# In normal use, you would never create a `collection::iterator` directly -
-# instead, it is created for you by either `collection::create` or 
-# `collection::file`.
-#
-# @example
-#   collections::create { 'foo':
-#   }
+# This is an internal type. The collections module works by appending
+# to lists in a resource, and thus depends entirely upon Puppet's
+# resource ordering to ensure that all of the appends have actually
+# executed before we perform any actions. `collections::iterator`
+# defines and wraps around a `collections::commit` resource, and
+# provides the necessary structure upon which to insert dependency
+# constraints that make collections work.
 #
 # @param [Array[Any]] items
 #   The collected items which will be processed by actions and executors
@@ -29,82 +26,9 @@ define collections::iterator (
   Array[Struct[{ resource=> String,parameters=> Hash }]] $executors,
   Array[Struct[{ resource=> String,parameters=> Hash }]] $actions,
 ) {
-  collections::checkpoint { "collections::${title}::before-executors":
-  }
-  collections::checkpoint { "collections::${title}::after-executors":
-    require => Collections::Checkpoint["collections::${title}::before-executors"],
-  }
-  collections::checkpoint { "collections::${title}::before-actions":
-    require => Collections::Checkpoint["collections::${title}::after-executors"],
-  }
-  collections::checkpoint { "collections::${title}::after-actions":
-    require => Collections::Checkpoint["collections::${title}::before-actions"],
-  }
-  collections::checkpoint { "collections::${title}::completed":
-    require => Collections::Checkpoint["collections::${title}::after-actions"],
-  }
-
-  # Option for deep_merge to allow merging require/before cleanly
-  # (require => "foo" will merge into require => ["bar", "baz"] to make ["bar", "baz", "foo"])
-  $extend_arrays = {
-    extend_existing_arrays => true,
-  }
-
-  # Generate the base require/before for all executor
-  $executor_ordering = {
-    require => [
-      Collections::Checkpoint["collections::${title}::before-executors"],
-    ],
-    before  => [
-      Collections::Checkpoint["collections::${title}::after-executors"],
-      Collections::Checkpoint["collections::${title}::before-actions"],
-    ],
-  }
-
-  # Executors are called once, with all the items as a parameter
-  $executors.each |$group| {
-    create_resources(
-      $group['resource'],
-      {
-        "${title}::executor" => {
-          target  => $title,
-          items   => $items,
-        }
-      },
-      collections::deep_merge($executor_ordering, $group['parameters'], $extend_arrays),
-    )
-  }
-
-  # Generate the base require/before for all actions
-  $action_ordering = {
-    require => [
-      Collections::Checkpoint["collections::${title}::after-executors"],
-      Collections::Checkpoint["collections::${title}::before-actions"],
-    ],
-    before  => [
-      Collections::Checkpoint["collections::${title}::after-actions"],
-      Collections::Checkpoint["collections::${title}::completed"],
-    ],
-  }
-
-  # We only need to generate these once, then create_resources can run once per
-  # resource type.
-  $item_hash = $items.reduce({}) |$memo, $item| {
-    $index = $memo.length + 1
-    $memo + {
-      "${title}::${index}" => {
-        target => $title,
-        item   => $item,
-      },
-    }
-  }
-
-  # Actions are called per item
-  $actions.each |$group| {
-    create_resources(
-      $group['resource'],
-      $item_hash,
-      collections::deep_merge($action_ordering, $group['parameters'], $extend_arrays),
-    )
+  collections::commit { $title:
+    items     => $items,
+    executors => $executors,
+    actions   => $actions,
   }
 }

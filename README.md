@@ -10,6 +10,8 @@
     1. [Concat](#concat)
     1. [YAML](#yaml)
     1. [JSON](#json)
+  1. [Testing](#testing)
+  1. [How collections works](#how-collections-works)
 1. [Limitations - OS compatibility, etc.](#limitations)
 1. [Development - Guide for contributing to the module](#development)
 
@@ -179,6 +181,72 @@ module is standard Puppet resource execution and ordering, there are no special
 tricks or techniques. If you use `collection::file` to create a file, you can
 then test for a `file` resource with the expected `content` field, just as if
 you created it directly.
+
+### How collections works
+
+The core mechanic that allows collections to work is declaring resources with
+the correct structure and initial data, then appending to them using resource
+references. This is quite tricky to get right, and while the actual code in
+collections is quite small, the structure is vital.
+
+#### Order of processing
+
+Within a collection, the order of processing is:
+
+* Gather items
+* Run all executors (resources that are instantiated with the complete list
+  of items as a single parameter)
+* Run all actions (resources that are instantiated once for each item)
+* Complete
+
+If you ever need to take particular actions at specific times within this
+processing, you can add constraints on `Collections::Checkpoint` resources:
+
+* `Collections::Checkpoint["collection::${name}::before-executors"]
+* `Collections::Checkpoint["collection::${name}::after-executors"]
+* `Collections::Checkpoint["collection::${name}::before-actions"]
+* `Collections::Checkpoint["collection::${name}::after-actions"]
+* `Collections::Checkpoint["collection::${name}::completed"]
+
+#### A simplified explanation
+
+To simplify the explanation, we will only cover how items are added to the
+collection and processed by it.
+
+To create a collection you define a `collection::create` resource:
+```puppet
+collections::create { 'example': }
+```
+
+This results in the following chain of resources and constraints:
+```puppet
+
+# Created by the user
+collections::create { 'example': }
+
+# Created by collections::create
+collections::iterator { 'example':
+  items => []
+}
+Collections::Append <|target == 'example'|> -> Collections::Commit['example']
+
+# Created by collections::iterator
+collections::iterator { 'example':
+  items => []
+}
+```
+
+When `collections::append` is used to add an item, it runs the following:
+```puppet
+Collections::Commit <|title=='example'|> {
+  items +> [ $new_item ]
+}
+```
+
+This is a deeper structure than may be expected, but it is required to
+function - in particular, the resource constraint that declares all
+appends must complete before the commit only works when it is outside
+the commit resource.
 
 ## Limitations
 

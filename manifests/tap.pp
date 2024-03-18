@@ -1,6 +1,6 @@
 # @summary Print the items received for debugging
 #
-# This is a debugging tool and example action. It creates a 
+# This is a debugging tool and example action. It creates a
 # notify resource for the item passed in to it.
 #
 # @example
@@ -29,11 +29,11 @@
 #   }
 #
 # @param [String[1]] target
-#   Passed in by `collections::iterator` when creating this resource. It indicates the
-#   name of the collection that it was spawned from, to allow any 
+#   Passed in by `collections::commit` when creating this resource. It indicates the
+#   name of the collection that it was spawned from, to allow any
 #
 # @param [Any] item
-#   Passed in by `collections::iterator` when creating this resource. It contains an 
+#   Passed in by `collections::commit` when creating this resource. It contains an
 #   one item from the collection.
 #
 define collections::tap (

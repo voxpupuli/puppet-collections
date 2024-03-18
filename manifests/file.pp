@@ -45,7 +45,7 @@
 #   }
 #
 #   ## Create a yaml file using multiple merged values
-#   
+#
 #   collections::file { '/etc/service/config.yaml':
 #     collector => 'service-config',
 #     template  => 'collections/yaml.erb',
@@ -74,15 +74,19 @@
 #   If provided, a `collection::append` resource named `<collectionname>::auto-initial-data` will
 #   be created.
 #
-# @param [Hash[String,Variant[Boolean,String]]] merge_options
-#   Options to pass to the Ruby `deep_merge` gem. See the [options reference](https://github.com/danielsdeleo/deep_merge?tab=readme-ov-file#options) for details.
-#
 # @param [Hash[String, Any]] file
 #   Parameters to pass to the `file` resource which will be created by this collection.
-#   Most values will be passed through, but `source` or `content` will be removed 
+#   Most values will be passed through, but `source` or `content` will be removed
 #   (As allowing them would be ambiguous) and `ensure` will only be allowed if set to
 #   `absent`, `file` or `present`.
 #
+# @param [Hash[String,Variant[Boolean,String]]] merge_options
+#   Default: { keep_array_duplicates => true } (for compatability with datacat)
+#   Options to pass to the Ruby `deep_merge` gem. See the [options reference](https://github.com/danielsdeleo/deep_merge?tab=readme-ov-file#options) for details.
+#
+# @param [Boolean] reverse_merge_order
+#   Default: false
+#   Give merge priority to items later in the set
 define collections::file (
   String[1] $collector,
 
@@ -91,6 +95,7 @@ define collections::file (
   Hash[String,Variant[Boolean,String]] $merge_options = {},
 
   Hash[String, Any] $file = {},
+  Boolean $reverse_merge_order = false,
 ) {
   $ensure_safe_values = {
     content => [],
@@ -115,7 +120,6 @@ define collections::file (
 
   collections::create { $collector:
     initial_items => $initial_items,
-    merge_options => $merge_options,
   }
 
   $set_default_file_path = {
@@ -126,8 +130,10 @@ define collections::file (
     target     => $collector,
     resource   => 'collections::file::writer',
     parameters => {
-      file     => collections::deep_merge($file, $set_default_file_path),
-      template => $template,
+      file                => collections::deep_merge($file, $set_default_file_path),
+      template            => $template,
+      merge_options       => $merge_options,
+      reverse_merge_order => $reverse_merge_order,
     },
   }
 }
