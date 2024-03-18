@@ -10,10 +10,10 @@
 #     target     => admin_users,
 #     resource   => 'database::add_admin_access',
 #     parameters => {
-#       require => Service['database'] 
+#       require => Service['database']
 #     }
 #   }
-#   
+#
 #   collections::append { 'Alice is an admin user':
 #     target => admin_users,
 #     data   => {

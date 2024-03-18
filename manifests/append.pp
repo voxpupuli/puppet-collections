@@ -21,7 +21,7 @@ define collections::append (
   String[1] $target,
   Any $data
 ) {
-  Collections::Iterator <| title == $target |> {
-    items +> [$data]
+  Collections::Commit <| title == $target |> {
+    items   +> [$data],
   }
 }

@@ -2,8 +2,8 @@
 
 require 'spec_helper'
 
-describe 'collections::iterator' do
-  let(:title) { 'iterator' }
+describe 'collections::commit' do
+  let(:title) { 'commit' }
   let(:params) do
     {
       items: [],
@@ -17,18 +17,12 @@ describe 'collections::iterator' do
       let(:facts) { os_facts }
 
       it { is_expected.to compile }
-
       it 'creates checkpoints' do
-        ['iterator'].each do |title|
+        ['commit'].each do |title|
           ['before-executors', 'after-executors', 'before-actions', 'after-actions', 'completed'].each do |stage|
             is_expected.to contain_collections__checkpoint("collections::#{title}::#{stage}")
           end
         end
-      end
-
-      it 'creates a commit resource' do
-        is_expected.to contain_collections__iterator('iterator')
-        is_expected.to contain_collections__commit('iterator')
       end
     end
   end
