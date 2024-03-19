@@ -17,9 +17,10 @@ describe 'collections::commit' do
       let(:facts) { os_facts }
 
       it { is_expected.to compile }
+
       it 'creates checkpoints' do
         ['commit'].each do |title|
-          ['before-executors', 'after-executors', 'before-actions', 'after-actions', 'completed'].each do |stage|
+          %w[before-executors after-executors before-actions after-actions completed].each do |stage|
             is_expected.to contain_collections__checkpoint("collections::#{title}::#{stage}")
           end
         end

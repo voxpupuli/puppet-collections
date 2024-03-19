@@ -20,7 +20,7 @@ describe 'collections::iterator' do
 
       it 'creates checkpoints' do
         ['iterator'].each do |title|
-          ['before-executors', 'after-executors', 'before-actions', 'after-actions', 'completed'].each do |stage|
+          %w[before-executors after-executors before-actions after-actions completed].each do |stage|
             is_expected.to contain_collections__checkpoint("collections::#{title}::#{stage}")
           end
         end

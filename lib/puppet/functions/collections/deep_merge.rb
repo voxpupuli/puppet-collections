@@ -7,7 +7,7 @@ require 'deep_merge'
 # Returns a copy of dest with source merged into it
 #
 # @see https://github.com/danielsdeleo/deep_merge?tab=readme-ov-file#options
-Puppet::Functions.create_function(:"collections::deep_merge") do
+Puppet::Functions.create_function(:'collections::deep_merge') do
   # @param dest
   #   The destination object, which will be overridden by the contents of source
   #
