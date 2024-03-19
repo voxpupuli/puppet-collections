@@ -34,7 +34,7 @@ Puppet::Functions.create_function(:'collections::deep_merge') do
     # Options are expected to be a hash with Symbol keys.
     options_with_syms = options.transform_keys(&:to_sym)
 
-    result = wrapped_dest.deep_merge(wrapped_source, options_with_syms)
+    result = wrapped_dest.deep_merge!(wrapped_source, options_with_syms)
 
     result[:data]
   end
