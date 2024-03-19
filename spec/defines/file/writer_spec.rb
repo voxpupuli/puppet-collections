@@ -7,7 +7,7 @@ describe 'collections::file::writer' do
   let(:params) do
     {
       target: 'foo',
-      items: [ {} ],
+      items: [{}],
       file: {
         path: '/foo/bar',
       },

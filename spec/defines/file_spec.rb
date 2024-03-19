@@ -20,7 +20,7 @@ def basic_structure(title, file: true)
     is_expected.to contain_collections__commit(title)
     if file
       is_expected.to contain_collections__register_executor("collections::file::writer::#{title}").with(
-        resource: 'collections::file::writer',
+        resource: 'collections::file::writer'
       )
       is_expected.to contain_collections__file__writer("#{title}::executor::1")
     end
@@ -103,7 +103,7 @@ EOF
             'hash' => {
               'one' => 1,
             },
-          },
+          }
         )
         is_expected.to contain_collections__append('Add two').with(
           name: 'Add two',
@@ -118,7 +118,7 @@ EOF
             'repl' => {
               'not_two' => 7,
             },
-          },
+          }
         )
         is_expected.to contain_collections__append('Overwrite').with(
           name: 'Overwrite',
@@ -130,11 +130,11 @@ EOF
             'repl' => {
               'not_two' => 2,
             },
-          },
+          }
         )
         is_expected.to contain_collections__create('file-test').with(
           target: 'file-test',
-          defaults: {},
+          defaults: {}
         )
         is_expected.to contain_collections__register_executor('collections::file::writer::file-test').with(
           name: 'collections::file::writer::file-test',
@@ -151,12 +151,12 @@ EOF
             'template_body' => nil,
             'merge_options' => {},
             'reverse_merge_order' => false,
-          },
+          }
         )
         is_expected.to contain_collections__register_executor('collections::file::debug::file-test').with(
           name: 'collections::file::debug::file-test',
           target: 'file-test',
-          resource: 'collections::debug_executor',
+          resource: 'collections::debug_executor'
         )
         is_expected.to contain_collections__append('Add two').with(
           target: 'file-test',
@@ -170,7 +170,7 @@ EOF
             'repl' => {
               'not_two' => 7,
             },
-          },
+          }
         )
         is_expected.to contain_collections__append('Overwrite').with(
           target: 'file-test',
@@ -181,13 +181,13 @@ EOF
             'repl' => {
               'not_two' => 2,
             },
-          },
+          }
         )
         is_expected.to contain_collections__iterator('file-test')
         is_expected.to contain_collections__commit('file-test').with(
           items: [
             {
-              'list' => [ 1 ],
+              'list' => [1],
               'hash' => { 'one' => 1 }
             },
             {
@@ -231,7 +231,7 @@ EOF
                 'reverse_merge_order' => false,
               },
             },
-          ],
+          ]
         )
         is_expected.to contain_collections__file__writer('file-test::executor::2').with(
           target: 'file-test',
@@ -271,7 +271,7 @@ EOF
             'path' => '/tmp/collections-file-test',
           },
           'template' => 'collections/yaml.erb',
-          'template_body' => nil,
+          'template_body' => nil
         )
         is_expected.to contain_collections__debug_executor('file-test::executor::1').with(
           target: 'file-test',
@@ -303,7 +303,7 @@ EOF
                 'not_two' => 2,
               },
             },
-          ],
+          ]
         )
         is_expected.to contain_notify('Collection file-test:').with(
           message: {
@@ -332,7 +332,7 @@ EOF
                 },
               },
             ],
-          },
+          }
         )
 
         is_expected.to contain_file('/tmp/collections-file-test').with(
@@ -340,12 +340,12 @@ EOF
           owner: 'root',
           group: 'root',
           mode: '0644',
-          content: "---\nlist:\n- 1\n- 2\nhash:\n  one: 1\n  two: 2\nrepl:\n  not_two: 7\n",
+          content: "---\nlist:\n- 1\n- 2\nhash:\n  one: 1\n  two: 2\nrepl:\n  not_two: 7\n"
         )
 
         is_expected.to contain_collections__create('foo').with(
           target: 'foo',
-          defaults: {},
+          defaults: {}
         )
         is_expected.to contain_collections__register_executor('collections::file::writer::foo').with(
           target: 'foo',
@@ -358,7 +358,7 @@ EOF
             'template_body' => nil,
             'merge_options' => {},
             'reverse_merge_order' => false,
-          },
+          }
         )
         is_expected.to contain_collections__iterator('foo')
         is_expected.to contain_collections__commit('foo').with(
@@ -377,7 +377,7 @@ EOF
                 'reverse_merge_order' => false,
               },
             },
-          ],
+          ]
         )
         is_expected.to contain_collections__file__writer('foo::executor::1').with(
           target: 'foo',
@@ -388,12 +388,12 @@ EOF
           'template' => 'collections/yaml.erb',
           'template_body' => nil,
           'merge_options' => {},
-          'reverse_merge_order' => false,
+          'reverse_merge_order' => false
         )
 
         is_expected.to contain_file('/foo/bar').with(
           path: '/foo/bar',
-          content: "--- \n",
+          content: "--- \n"
         )
       end
 
@@ -467,7 +467,7 @@ EOF
         basic_structure('concat-test')
         it 'Generates the file' do
           is_expected.to contain_file('/tmp/concat-test').with(
-            content: "line 1\nline 2\nline 3\nline 4\n",
+            content: "line 1\nline 2\nline 3\nline 4\n"
           )
         end
       end
@@ -492,7 +492,7 @@ EOF
 
         it 'Generates the file' do
           is_expected.to contain_file('/tmp/template-body-test').with(
-            content: "# Header\n---\nlist:\n- 1\n- 2\n- 3\n- 4\n",
+            content: "# Header\n---\nlist:\n- 1\n- 2\n- 3\n- 4\n"
           )
         end
       end

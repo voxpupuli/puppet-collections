@@ -16,11 +16,12 @@ describe 'collections::tap' do
       let(:facts) { os_facts }
 
       it { is_expected.to compile }
+
       it do
         is_expected.to contain_notify('Collections::Tap: tap').with(
           message: {
             'item' => 1,
-          },
+          }
         )
       end
     end
