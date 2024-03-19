@@ -340,7 +340,7 @@ EOF
           owner: 'root',
           group: 'root',
           mode: '0644',
-          content: "---\nlist:\n- 1\n- 2\nhash:\n  one: 1\n  two: 2\nrepl:\n  not_two: 7\n"
+          content: "---\nlist:\n- 1\n- 2\nhash:\n  one: 3\n  two: 2\nrepl:\n  not_two: 2\n"
         )
 
         is_expected.to contain_collections__create('foo').with(
