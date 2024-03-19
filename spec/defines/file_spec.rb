@@ -2,6 +2,31 @@
 
 require 'spec_helper'
 
+def checkpoint(title)
+  it 'creates checkpoints' do
+    is_expected.to contain_collections__checkpoint("collections::#{title}::before-executors")
+    is_expected.to contain_collections__checkpoint("collections::#{title}::after-executors")
+    is_expected.to contain_collections__checkpoint("collections::#{title}::before-actions")
+    is_expected.to contain_collections__checkpoint("collections::#{title}::after-actions")
+    is_expected.to contain_collections__checkpoint("collections::#{title}::completed")
+  end
+end
+
+def basic_structure(title, file: true)
+  checkpoint title
+  it 'creates the basic structure' do
+    is_expected.to contain_collections__create(title)
+    is_expected.to contain_collections__iterator(title)
+    is_expected.to contain_collections__commit(title)
+    if file
+      is_expected.to contain_collections__register_executor("collections::file::writer::#{title}").with(
+        resource: 'collections::file::writer',
+      )
+      is_expected.to contain_collections__file__writer("#{title}::executor::1")
+    end
+  end
+end
+
 describe 'collections::file' do
   let(:title) { '/foo/bar' }
   let(:params) do
@@ -59,16 +84,7 @@ EOF
 
       it { is_expected.to compile }
 
-      # it { generate('Creates a file') }
-      ### BEGIN GENERATED TESTS: Creates a file ###
-
-      it 'creates checkpoints' do
-        is_expected.to contain_collections__checkpoint('collections::file-test::before-executors')
-        is_expected.to contain_collections__checkpoint('collections::file-test::after-executors')
-        is_expected.to contain_collections__checkpoint('collections::file-test::before-actions')
-        is_expected.to contain_collections__checkpoint('collections::file-test::after-actions')
-        is_expected.to contain_collections__checkpoint('collections::file-test::completed')
-      end
+      checkpoint('file-test')
 
       it 'Creates a file' do
         is_expected.to contain_collections__file('/tmp/collections-file-test').with(
@@ -132,6 +148,7 @@ EOF
               'path' => '/tmp/collections-file-test',
             },
             'template' => 'collections/yaml.erb',
+            'template_body' => nil,
             'merge_options' => {},
             'reverse_merge_order' => false,
           },
@@ -209,6 +226,7 @@ EOF
                   'path' => '/tmp/collections-file-test',
                 },
                 'template' => 'collections/yaml.erb',
+                'template_body' => nil,
                 'merge_options' => {},
                 'reverse_merge_order' => false,
               },
@@ -253,6 +271,7 @@ EOF
             'path' => '/tmp/collections-file-test',
           },
           'template' => 'collections/yaml.erb',
+          'template_body' => nil,
         )
         is_expected.to contain_collections__debug_executor('file-test::executor::1').with(
           target: 'file-test',
@@ -336,6 +355,7 @@ EOF
               'path' => '/foo/bar',
             },
             'template' => 'collections/yaml.erb',
+            'template_body' => nil,
             'merge_options' => {},
             'reverse_merge_order' => false,
           },
@@ -352,6 +372,7 @@ EOF
                   'path' => '/foo/bar',
                 },
                 'template' => 'collections/yaml.erb',
+                'template_body' => nil,
                 'merge_options' => {},
                 'reverse_merge_order' => false,
               },
@@ -365,6 +386,7 @@ EOF
             'path' => '/foo/bar',
           },
           'template' => 'collections/yaml.erb',
+          'template_body' => nil,
           'merge_options' => {},
           'reverse_merge_order' => false,
         )
@@ -374,7 +396,106 @@ EOF
           content: "--- \n",
         )
       end
-      ### END GENERATED TESTS: Creates a file ###
+
+      context 'The yaml built-in template works' do
+        let(:pre_condition) do
+          %(
+            collections::file { '/tmp/yaml-test':
+              collector     => 'yaml-test',
+              template      => 'collections/yaml.erb',
+            }
+            [ 3, 1, 4, 2 ].each |$num| {
+              collections::append { "Add ${num}":
+                target => 'yaml-test',
+                data   => {
+                  $num => "Value ${num}"
+                }
+              }
+            }
+          )
+        end
+
+        basic_structure('yaml-test')
+        it 'Generates the file' do
+          is_expected.to contain_file('/tmp/yaml-test').with_content("---\n3: Value 3\n1: Value 1\n4: Value 4\n2: Value 2\n")
+        end
+      end
+
+      context 'The json built-in template works' do
+        let(:pre_condition) do
+          %(
+            collections::file { '/tmp/json-test':
+              collector     => 'json-test',
+              template      => 'collections/json.erb',
+            }
+            [ 3, 1, 4, 2 ].each |$num| {
+              collections::append { "Add ${num}":
+                target => 'json-test',
+                data   => {
+                  $num => "Value ${num}"
+                }
+              }
+            }
+          )
+        end
+
+        basic_structure('json-test')
+        it 'Generates the file' do
+          is_expected.to contain_file('/tmp/json-test').with_content("{\"3\":\"Value 3\",\"1\":\"Value 1\",\"4\":\"Value 4\",\"2\":\"Value 2\"}\n")
+        end
+      end
+
+      context 'The concat built-in template works' do
+        let(:pre_condition) do
+          %(
+            collections::file { '/tmp/concat-test':
+              collector     => 'concat-test',
+              template      => 'collections/concat.erb',
+            }
+            [ 3, 1, 4, 2 ].each |$num| {
+              collections::append { "Add ${num}":
+                target => 'concat-test',
+                data   => {
+                  order   => $num,
+                  content => "line ${num}"
+                }
+              }
+            }
+          )
+        end
+
+        basic_structure('concat-test')
+        it 'Generates the file' do
+          is_expected.to contain_file('/tmp/concat-test').with(
+            content: "line 1\nline 2\nline 3\nline 4\n",
+          )
+        end
+      end
+
+      context 'Passing a template_body works' do
+        let(:pre_condition) do
+          %{
+            collections::file { '/tmp/template-body-test':
+              collector     => 'template-body',
+              template_body => "# Header\n<%= require 'yaml'; YAML.dump(@data) %>",
+            }
+            [1, 2, 3, 4].each |$num| {
+              collections::append { "Add ${num}":
+                target => 'template-body',
+                data   => { list => [$num] }
+              }
+            }
+          }
+        end
+
+        basic_structure('template-body')
+
+        it 'Generates the file' do
+          is_expected.to contain_file('/tmp/template-body-test').with(
+            content: "# Header\n---\nlist:\n- 1\n- 2\n- 3\n- 4\n",
+          )
+        end
+      end
     end
   end
 end

@@ -171,8 +171,11 @@ be generate from a template, with data collated from any number of
 `collection::file::fragment` resources.
 
 The output of the collated resources will be a variable `$data` (or `@data`
-within erb templates). As a convenience, a small set of templates are
-predefined within the collections module to suit a few use cases:
+within erb templates). If you need, you can also access `@items`, which is
+the raw list of all items in the collection.
+
+As a convenience, a small set of templates are predefined within the
+collections module to suit a few use cases:
 
 #### `collections/concat.erb`
 This template allows constructing a file from multiple content blocks, with
@@ -239,6 +242,7 @@ The following parameters are available in the `collections::file` defined type:
 
 * [`collector`](#-collections--file--collector)
 * [`template`](#-collections--file--template)
+* [`template_body`](#-collections--file--template_body)
 * [`data`](#-collections--file--data)
 * [`file`](#-collections--file--file)
 * [`merge_options`](#-collections--file--merge_options)
@@ -252,9 +256,21 @@ The name of this collection
 
 ##### <a name="-collections--file--template"></a>`template`
 
-Data type: `String[3]`
+Data type: `Optional[String[3]]`
 
 The name of a template to use. This should be a String in the form of `modulename/filename`.
+Either this or `template_body` (the actual template code) must be passed.
+
+Default value: `undef`
+
+##### <a name="-collections--file--template_body"></a>`template_body`
+
+Data type: `Optional[String]`
+
+The template code to use (content of a template file, rather than a path).
+Either this or `template` (a path to a template in a module) must be passed.
+
+Default value: `undef`
 
 ##### <a name="-collections--file--data"></a>`data`
 
