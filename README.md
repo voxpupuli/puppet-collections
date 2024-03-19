@@ -81,7 +81,7 @@ the database.
 In your database configuration module, you can now define a type to give admin
 access:
 ```puppet
-define datbase::admin_user (
+define database::admin_user (
   String[1] $target, # The name of the collection (in case of reuse)
   Any $item, # The item passed in. In this example a hash: { $name => $user }
 ) {
