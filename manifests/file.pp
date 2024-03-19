@@ -6,8 +6,11 @@
 # `collection::file::fragment` resources.
 #
 # The output of the collated resources will be a variable `$data` (or `@data`
-# within erb templates). As a convenience, a small set of templates are
-# predefined within the collections module to suit a few use cases:
+# within erb templates). If you need, you can also access `@items`, which is
+# the raw list of all items in the collection.
+#
+# As a convenience, a small set of templates are predefined within the
+# collections module to suit a few use cases:
 #
 # #### `collections/concat.erb`
 # This template allows constructing a file from multiple content blocks, with
@@ -66,8 +69,13 @@
 # @param [String[1]] collector
 #   The name of this collection
 #
-# @param [String[3]] template
+# @param [Optional[String[3]]] template
 #   The name of a template to use. This should be a String in the form of `modulename/filename`.
+#   Either this or `template_body` (the actual template code) must be passed.
+#
+# @param [Optional[String]] template_body
+#   The template code to use (content of a template file, rather than a path).
+#   Either this or `template` (a path to a template in a module) must be passed.
 #
 # @param [Any] data
 #   Optional. Initial data for the collection.
@@ -87,16 +95,25 @@
 # @param [Boolean] reverse_merge_order
 #   Default: false
 #   Give merge priority to items later in the set
+#
 define collections::file (
   String[1] $collector,
 
-  String[3] $template,
+  Optional[String[3]] $template = undef,
+  Optional[String] $template_body = undef,
   Any $data = undef,
   Hash[String,Variant[Boolean,String]] $merge_options = {},
 
   Hash[String, Any] $file = {},
   Boolean $reverse_merge_order = false,
 ) {
+  if $template == undef and $template_body == undef {
+    fail("Exactly one of 'template' or 'template_body' must be passed to 'collections::file'")
+  }
+  if $template != undef and $template_body != undef {
+    fail("Exactly one of 'template' or 'template_body' must be passed to 'collections::file'")
+  }
+
   $ensure_safe_values = {
     content => [],
     source  => [],
@@ -132,6 +149,7 @@ define collections::file (
     parameters => {
       file                => collections::deep_merge($file, $set_default_file_path),
       template            => $template,
+      template_body       => $template_body,
       merge_options       => $merge_options,
       reverse_merge_order => $reverse_merge_order,
     },

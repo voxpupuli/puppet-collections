@@ -23,9 +23,13 @@
 #   Passed in by `collections::commit` when creating this resource. It contains the
 #   the parameters which will be used to configure the `file` resource.
 #
-# @param [String[3]] template
+# @param [Optional[String[3]]] template
 #   Passed in by `collections::commit` when creating this resource. It contains the
 #   name of a template, in 'module/filename' form.
+#
+# @param [Optional[String]] template_body
+#   Passed in by `collections::commit` when creating this resource. It contains the
+#   actual template code that will be executed.
 #
 # @param [Hash[String,Variant[Boolean,String]]] merge_options
 #   Default: { keep_array_duplicates => true } (for compatability with datacat)
@@ -38,7 +42,8 @@ define collections::file::writer (
   String[1] $target,
   Array[Any] $items,
   Hash[String,Any] $file,
-  String[3] $template,
+  Optional[String[3]] $template = undef,
+  Optional[String] $template_body = undef,
   Hash[String,Variant[Boolean,String]] $merge_options = {},
   Boolean $reverse_merge_order = false,
 ) {
@@ -51,8 +56,13 @@ define collections::file::writer (
     }
   }
 
+  if $template != undef {
+    $content = template($template)
+  } else {
+    $content = inline_template($template_body)
+  }
   file { $file['path']:
     *       => $file,
-    content => template($template),
+    content => $content,
   }
 }
