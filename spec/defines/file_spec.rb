@@ -419,6 +419,33 @@ EOF
           )
         end
       end
+
+      context 'false can overwrite true' do
+        let(:pre_condition) do
+          %(
+            collections::file { '/tmp/boolean-test':
+              collector => 'boolean-test',
+              template  => 'collections/yaml.erb',
+              data      => {
+                enabled => true
+              }
+            }
+            collections::append { 'Disable the key':
+              target => 'boolean-test',
+              data   => {
+                enabled => false
+              }
+            }
+          )
+        end
+
+        basic_structure('boolean-test')
+        it 'Sets enabled to false' do
+          is_expected.to contain_file('/tmp/boolean-test').with(
+            content: "---\nenabled: false\n"
+          )
+        end
+      end
     end
   end
 end
