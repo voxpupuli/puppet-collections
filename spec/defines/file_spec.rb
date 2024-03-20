@@ -40,8 +40,10 @@ describe 'collections::file' do
     context "on #{os}" do
       let(:facts) { os_facts }
 
+      # Basic test - merge items in the right order.
       let(:pre_condition) do
         <<EOF
+
   collections::file { '/tmp/collections-file-test':
     collector => 'file-test',
     template  => 'collections/yaml.erb',
@@ -53,7 +55,9 @@ describe 'collections::file' do
     },
     data      => {
       list    => [ 1 ],
-      hash    => { one => 1 },
+      hash    => {
+        value => 'initialised to 1'
+      }
     },
   }
 
@@ -62,22 +66,24 @@ describe 'collections::file' do
     resource => 'collections::debug_executor'
   }
 
-  collections::append { 'Add two':
+  collections::append { 'Append to the list, overwrite the hash key':
     target => 'file-test',
     data   => {
       list => [ 2 ],
-      hash => { two => 2 },
-      repl => { not_two => 7 },
+      hash => {
+        value => 'overwritten to 2'
+      }
     },
   }
 
-  collections::append { 'Overwrite':
+  collections::append { 'Append to the list, overwrite the hash key again':
     target => 'file-test',
     data   => {
-      hash => { one => 3 },
-      repl => { not_two => 2 },
+      list => [ 3 ],
+      hash => {
+        value => 'finally set to 3'
+      }
     },
-    require => Collections::Append['Add two']
   }
 EOF
       end
@@ -101,34 +107,29 @@ EOF
               1,
             ],
             'hash' => {
-              'one' => 1,
+              'value' => 'initialised to 1',
             },
           }
         )
-        is_expected.to contain_collections__append('Add two').with(
-          name: 'Add two',
+        is_expected.to contain_collections__append('Append to the list, overwrite the hash key').with(
           target: 'file-test',
           data: {
             'list' => [
               2,
             ],
             'hash' => {
-              'two' => 2,
-            },
-            'repl' => {
-              'not_two' => 7,
+              'value' => 'overwritten to 2',
             },
           }
         )
-        is_expected.to contain_collections__append('Overwrite').with(
-          name: 'Overwrite',
+        is_expected.to contain_collections__append('Append to the list, overwrite the hash key again').with(
           target: 'file-test',
           data: {
+            'list' => [
+              3
+            ],
             'hash' => {
-              'one' => 3,
-            },
-            'repl' => {
-              'not_two' => 2,
+              'value' => 'finally set to 3',
             },
           }
         )
@@ -137,7 +138,6 @@ EOF
           defaults: {}
         )
         is_expected.to contain_collections__register_executor('collections::file::writer::file-test').with(
-          name: 'collections::file::writer::file-test',
           target: 'file-test',
           resource: 'collections::file::writer',
           parameters: {
@@ -158,57 +158,21 @@ EOF
           target: 'file-test',
           resource: 'collections::debug_executor'
         )
-        is_expected.to contain_collections__append('Add two').with(
-          target: 'file-test',
-          data: {
-            'list' => [
-              2,
-            ],
-            'hash' => {
-              'two' => 2,
-            },
-            'repl' => {
-              'not_two' => 7,
-            },
-          }
-        )
-        is_expected.to contain_collections__append('Overwrite').with(
-          target: 'file-test',
-          data: {
-            'hash' => {
-              'one' => 3,
-            },
-            'repl' => {
-              'not_two' => 2,
-            },
-          }
-        )
         is_expected.to contain_collections__iterator('file-test')
         is_expected.to contain_collections__commit('file-test').with(
           items: [
             {
               'list' => [1],
-              'hash' => { 'one' => 1 }
+              'hash' => { 'value' => 'initialised to 1' }
             },
             {
-              'list' => [
-                2,
-              ],
-              'hash' => {
-                'two' => 2,
-              },
-              'repl' => {
-                'not_two' => 7,
-              },
+              'list' => [2],
+              'hash' => { 'value' => 'overwritten to 2' }
             },
             {
-              'hash' => {
-                'one' => 3,
-              },
-              'repl' => {
-                'not_two' => 2,
-              },
-            },
+              'list' => [3],
+              'hash' => { 'value' => 'finally set to 3' }
+            }
           ],
           actions: [],
           executors: [
@@ -237,32 +201,17 @@ EOF
           target: 'file-test',
           items: [
             {
-              'list' => [
-                1,
-              ],
-              'hash' => {
-                'one' => 1
-              },
+              'list' => [1],
+              'hash' => { 'value' => 'initialised to 1' }
             },
             {
-              'list' => [
-                2,
-              ],
-              'hash' => {
-                'two' => 2,
-              },
-              'repl' => {
-                'not_two' => 7,
-              },
+              'list' => [2],
+              'hash' => { 'value' => 'overwritten to 2' }
             },
             {
-              'hash' => {
-                'one' => 3,
-              },
-              'repl' => {
-                'not_two' => 2,
-              },
-            },
+              'list' => [3],
+              'hash' => { 'value' => 'finally set to 3' }
+            }
           ],
           'file' => {
             'owner' => 'root',
@@ -277,32 +226,17 @@ EOF
           target: 'file-test',
           items: [
             {
-              'list' => [
-                1,
-              ],
-              'hash' => {
-                'one' => 1
-              },
+              'list' => [1],
+              'hash' => { 'value' => 'initialised to 1' }
             },
             {
-              'list' => [
-                2,
-              ],
-              'hash' => {
-                'two' => 2,
-              },
-              'repl' => {
-                'not_two' => 7,
-              },
+              'list' => [2],
+              'hash' => { 'value' => 'overwritten to 2' }
             },
             {
-              'hash' => {
-                'one' => 3,
-              },
-              'repl' => {
-                'not_two' => 2,
-              },
-            },
+              'list' => [3],
+              'hash' => { 'value' => 'finally set to 3' }
+            }
           ]
         )
         is_expected.to contain_notify('Collection file-test:').with(
@@ -310,27 +244,16 @@ EOF
             'items' => [
               {
                 'list' => [1],
-                'hash' => {
-                  'one' => 1,
-                },
+                'hash' => { 'value' => 'initialised to 1' }
               },
               {
                 'list' => [2],
-                'hash' => {
-                  'two' => 2,
-                },
-                'repl' => {
-                  'not_two' => 7,
-                },
+                'hash' => { 'value' => 'overwritten to 2' }
               },
               {
-                'hash' => {
-                  'one' => 3,
-                },
-                'repl' => {
-                  'not_two' => 2,
-                },
-              },
+                'list' => [3],
+                'hash' => { 'value' => 'finally set to 3' }
+              }
             ],
           }
         )
@@ -340,7 +263,7 @@ EOF
           owner: 'root',
           group: 'root',
           mode: '0644',
-          content: "---\nlist:\n- 1\n- 2\nhash:\n  one: 3\n  two: 2\nrepl:\n  not_two: 2\n"
+          content: "---\nlist:\n- 1\n- 2\n- 3\nhash:\n  value: finally set to 3\n"
         )
 
         is_expected.to contain_collections__create('foo').with(
