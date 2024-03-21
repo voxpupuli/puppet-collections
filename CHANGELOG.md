@@ -4,13 +4,17 @@ All notable changes to this project will be documented in this file.
 Each new release typically also includes the latest modulesync defaults.
 These should not affect the functionality of the module.
 
-## [v0.2.0](https://github.com/voxpupuli/puppet-collections/tree/v0.2.0) (2024-03-19)
+## [v0.2.0](https://github.com/voxpupuli/puppet-collections/tree/v0.2.0) (2024-03-21)
 
 [Full Changelog](https://github.com/voxpupuli/puppet-collections/compare/8df13c0e96bf98a6ff0eab2d88cfcc8113dcf1d9...v0.2.0)
 
 **Implemented enhancements:**
 
 - Add template\_body param to collections::file, improve tests [\#4](https://github.com/voxpupuli/puppet-collections/pull/4) ([ccooke](https://github.com/ccooke))
+
+**Fixed bugs:**
+
+- Deep merge fix [\#7](https://github.com/voxpupuli/puppet-collections/pull/7) ([ccooke](https://github.com/ccooke))
 
 **Merged pull requests:**
 
