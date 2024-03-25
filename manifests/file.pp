@@ -122,7 +122,7 @@ define collections::file (
   if $template == undef and $template_body == undef {
     fail("Exactly one of 'template' or 'template_body' must be passed to 'collections::file'")
   }
-  if $template != undef and $template_body != undef {
+  if $template and $template_body {
     fail("Exactly one of 'template' or 'template_body' must be passed to 'collections::file'")
   }
 
@@ -141,7 +141,7 @@ define collections::file (
     true
   }
 
-  if $data != undef {
+  if $data {
     $initial_items = [$data]
   } else {
     $initial_items = []

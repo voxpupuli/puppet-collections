@@ -68,23 +68,23 @@ define collections::file::writer (
 
   case $template_type {
     'auto': {
-      if $template != undef and $template =~ /(?i:\.epp)$/ {
+      if $template and $template =~ /(?i:\.epp)$/ {
         $content = epp($template, $epp_params)
-      } elsif $template != undef {
+      } elsif $template {
         $content = template($template)
       } else {
         $content = inline_template($template_body)
       }
     }
     'erb': {
-      if $template != undef {
+      if $template {
         $content = template($template)
       } else {
         $content = inline_template($template_body)
       }
     }
     'epp': {
-      if $template != undef {
+      if $template {
         $content = epp($template, $epp_params)
       } else {
         $content = inline_epp($template_body, $epp_params)
