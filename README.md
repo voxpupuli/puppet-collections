@@ -111,7 +111,7 @@ YAML:
 ```puppet
   collections::file { '/path/to/file.yaml':
     collector => 'app-config-file',
-    template  => 'collections/yaml.erb',
+    template  => 'collections/yaml.epp',
     file      => {
       owner => 'root',
       group => 'root',
@@ -140,7 +140,7 @@ You can then add data to the file using collections::append:
 ```
 
 #### Concat
-Template name: `collections/concat.erb`
+Template name: `collections/concat.epp` (or .erb)
 
 This allows for joining individual content blocks together, with some inbuilt
 ordering. It expects the `data` key to be a hash containing two items:
@@ -162,13 +162,13 @@ collections::append { 'Append to a concat file':
 ```
 
 #### YAML
-Template name: `collections/yaml.erb`
+Template name: `collections/yaml.epp` (or .erb)
 
 Takes any sequence of `data` items and sequentially merges them together with
 `deep_merge`, then converts the result to YAML and writes it to a file.
 
 #### JSON
-Template name: `collections/json.erb`
+Template name: `collections/json.epp` (or .erb)
 
 Takes any sequence of `data` items and sequentially merges them together with
 `deep_merge`, then converts the result to JSON and writes it to a file.

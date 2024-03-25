@@ -170,22 +170,29 @@ of allowing portions of a file to be defined in many places. The file will
 be generate from a template, with data collated from any number of
 `collection::file::fragment` resources.
 
-The output of the collated resources will be a variable `$data` (or `@data`
-within erb templates). If you need, you can also access `@items`, which is
-the raw list of all items in the collection.
+EPP templates will receive two parameters:
+  * `Any $data` - The contents of all `data` parameters from the collection
+                  merged
+  * 'Array $items` - An array containing each `data` parameter from the
+                     collection, in order.
+
+ERB templates can access these two variables as `@data` and `@items`.
 
 As a convenience, a small set of templates are predefined within the
 collections module to suit a few use cases:
 
-#### `collections/concat.erb`
+#### `collections/concat.epp`
+(Also .erb)
 This template allows constructing a file from multiple content blocks, with
 ordering based upon an optional `order` key. Fragments should contain a
 `content` key. Order will default to 1000 if it is not supplied.
 
-#### `collections/yaml.erb`
+#### `collections/yaml.epp`
+(Also .erb)
 This template will output the collected data as a YAML document
 
-#### `collections/json.erb`
+#### `collections/json.epp`
+(Also .erb)
 This template will output the collected data as a JSON document
 
 #### Examples
@@ -197,7 +204,7 @@ This template will output the collected data as a JSON document
 
 collections::file { '/etc/motd':
   collector => 'motd',
-  template  => 'collections/concat.erb',
+  template  => 'collections/concat.epp',
   data      => {
     order   => 1,
     content => file('my-module/motd-header'),
@@ -220,7 +227,7 @@ collections::file::fragment { 'Add an unauthorised access warning':
 
 collections::file { '/etc/service/config.yaml':
   collector => 'service-config',
-  template  => 'collections/yaml.erb',
+  template  => 'collections/yaml.epp',
   file      => {
     owner   => 'root',
     group   => 'service',
@@ -243,6 +250,7 @@ The following parameters are available in the `collections::file` defined type:
 * [`collector`](#-collections--file--collector)
 * [`template`](#-collections--file--template)
 * [`template_body`](#-collections--file--template_body)
+* [`template_type`](#-collections--file--template_type)
 * [`data`](#-collections--file--data)
 * [`file`](#-collections--file--file)
 * [`merge_options`](#-collections--file--merge_options)
@@ -271,6 +279,15 @@ The template code to use (content of a template file, rather than a path).
 Either this or `template` (a path to a template in a module) must be passed.
 
 Default value: `undef`
+
+##### <a name="-collections--file--template_type"></a>`template_type`
+
+Data type: `Enum['epp','erb','auto']`
+
+The template language used. The default is `auto`, which will default to 'erb'
+unless a filename template is passed that ends in `.epp`.
+
+Default value: `'auto'`
 
 ##### <a name="-collections--file--data"></a>`data`
 

@@ -32,7 +32,7 @@ describe 'collections::file' do
   let(:params) do
     {
       collector: 'foo',
-      template: 'collections/yaml.erb'
+      template: 'collections/yaml.epp'
     }
   end
 
@@ -46,7 +46,7 @@ describe 'collections::file' do
 
   collections::file { '/tmp/collections-file-test':
     collector => 'file-test',
-    template  => 'collections/yaml.erb',
+    template  => 'collections/yaml.epp',
     file      => {
       # options to be passed to the file resource
       owner   => root,
@@ -96,7 +96,7 @@ EOF
         is_expected.to contain_collections__file('/tmp/collections-file-test').with(
           name: '/tmp/collections-file-test',
           collector: 'file-test',
-          template: 'collections/yaml.erb',
+          template: 'collections/yaml.epp',
           file: {
             'owner' => 'root',
             'group' => 'root',
@@ -147,8 +147,9 @@ EOF
               'mode' => '0644',
               'path' => '/tmp/collections-file-test',
             },
-            'template' => 'collections/yaml.erb',
+            'template' => 'collections/yaml.epp',
             'template_body' => nil,
+            'template_type' => 'auto',
             'merge_options' => {},
             'reverse_merge_order' => false,
           }
@@ -189,8 +190,9 @@ EOF
                   'mode' => '0644',
                   'path' => '/tmp/collections-file-test',
                 },
-                'template' => 'collections/yaml.erb',
+                'template' => 'collections/yaml.epp',
                 'template_body' => nil,
+                'template_type' => 'auto',
                 'merge_options' => {},
                 'reverse_merge_order' => false,
               },
@@ -219,8 +221,9 @@ EOF
             'mode' => '0644',
             'path' => '/tmp/collections-file-test',
           },
-          'template' => 'collections/yaml.erb',
-          'template_body' => nil
+          'template' => 'collections/yaml.epp',
+          'template_body' => nil,
+          'template_type' => 'auto',
         )
         is_expected.to contain_collections__debug_executor('file-test::executor::1').with(
           target: 'file-test',
@@ -277,8 +280,9 @@ EOF
             'file' => {
               'path' => '/foo/bar',
             },
-            'template' => 'collections/yaml.erb',
+            'template' => 'collections/yaml.epp',
             'template_body' => nil,
+            'template_type' => 'auto',
             'merge_options' => {},
             'reverse_merge_order' => false,
           }
@@ -294,8 +298,9 @@ EOF
                 'file' => {
                   'path' => '/foo/bar',
                 },
-                'template' => 'collections/yaml.erb',
+                'template' => 'collections/yaml.epp',
                 'template_body' => nil,
+                'template_type' => 'auto',
                 'merge_options' => {},
                 'reverse_merge_order' => false,
               },
@@ -308,8 +313,9 @@ EOF
           'file' => {
             'path' => '/foo/bar',
           },
-          'template' => 'collections/yaml.erb',
+          'template' => 'collections/yaml.epp',
           'template_body' => nil,
+          'template_type' => 'auto',
           'merge_options' => {},
           'reverse_merge_order' => false
         )
@@ -325,7 +331,7 @@ EOF
           %(
             collections::file { '/tmp/yaml-test':
               collector     => 'yaml-test',
-              template      => 'collections/yaml.erb',
+              template      => 'collections/yaml.epp',
             }
             [ 3, 1, 4, 2 ].each |$num| {
               collections::append { "Add ${num}":
@@ -349,7 +355,7 @@ EOF
           %(
             collections::file { '/tmp/json-test':
               collector     => 'json-test',
-              template      => 'collections/json.erb',
+              template      => 'collections/json.epp',
             }
             [ 3, 1, 4, 2 ].each |$num| {
               collections::append { "Add ${num}":
@@ -373,7 +379,7 @@ EOF
           %(
             collections::file { '/tmp/concat-test':
               collector     => 'concat-test',
-              template      => 'collections/concat.erb',
+              template      => 'collections/concat.epp',
             }
             [ 3, 1, 4, 2 ].each |$num| {
               collections::append { "Add ${num}":
@@ -425,7 +431,7 @@ EOF
           %(
             collections::file { '/tmp/boolean-test':
               collector => 'boolean-test',
-              template  => 'collections/yaml.erb',
+              template  => 'collections/yaml.epp',
               data      => {
                 enabled => true
               }
@@ -443,6 +449,76 @@ EOF
         it 'Sets enabled to false' do
           is_expected.to contain_file('/tmp/boolean-test').with(
             content: "---\nenabled: false\n"
+          )
+        end
+      end
+
+      context 'template_type works' do
+        let(:pre_condition) do
+          %(
+            collections::file { '/tmp/type-test-auto-epp':
+              collector     => 'type-test-auto-epp',
+              template_type => 'auto',
+              template      => 'collections/yaml.epp',
+              data          => {
+                epp => true,
+              },
+            }
+
+            collections::file { '/tmp/type-test-auto-erb':
+              collector     => 'type-test-auto-erb',
+              template_type => 'auto',
+              template      => 'collections/yaml.erb',
+              data          => {
+                epp => false,
+              },
+            }
+
+            collections::file { '/tmp/type-test-erb-erb':
+              collector     => 'type-test-erb-erb',
+              template_type => 'auto',
+              template      => 'collections/yaml.erb',
+              data          => {
+                epp => false,
+              },
+            }
+
+            collections::file { '/tmp/type-test-epp-epp':
+              collector     => 'type-test-epp-epp',
+              template_type => 'auto',
+              template      => 'collections/yaml.epp',
+              data          => {
+                epp => true,
+              },
+            }
+          )
+        end
+
+        basic_structure('type-test-auto-epp')
+        it 'Renders epp as epp (auto)' do
+          is_expected.to contain_file('/tmp/type-test-auto-epp').with(
+            content: "---\nepp: true\n"
+          )
+        end
+
+        basic_structure('type-test-auto-erb')
+        it 'Renders erb as erb (auto)' do
+          is_expected.to contain_file('/tmp/type-test-auto-erb').with(
+            content: "---\nepp: false\n"
+          )
+        end
+
+        basic_structure('type-test-epp-epp')
+        it 'Renders epp as epp' do
+          is_expected.to contain_file('/tmp/type-test-epp-epp').with(
+            content: "---\nepp: true\n"
+          )
+        end
+
+        basic_structure('type-test-erb-erb')
+        it 'Renders erb as erb' do
+          is_expected.to contain_file('/tmp/type-test-erb-erb').with(
+            content: "---\nepp: false\n"
           )
         end
       end
