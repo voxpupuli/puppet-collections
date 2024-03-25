@@ -63,7 +63,7 @@ define collections::file::writer (
 
   $epp_params = {
     items => $items,
-    data  => $data
+    data  => $data,
   }
 
   case $template_type {
@@ -89,6 +89,9 @@ define collections::file::writer (
       } else {
         $content = inline_epp($template_body, $epp_params)
       }
+    }
+    default: {
+      fail('This code branch should be unreachable')
     }
   }
 
