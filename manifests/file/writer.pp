@@ -31,8 +31,12 @@
 #   Passed in by `collections::commit` when creating this resource. It contains the
 #   actual template code that will be executed.
 #
+# @param [Enum['epp','erb','auto']] template_type
+#   The template language used. The default is `auto`, which will default to 'erb'
+#   unless a filename template is passed that ends in `.epp`.
+#
 # @param [Hash[String,Variant[Boolean,String]]] merge_options
-#   Default: { keep_array_duplicates => true } (for compatability with datacat)
+#   Default: {}
 #   Options to pass to the Ruby `deep_merge` gem. See the [options reference](https://github.com/danielsdeleo/deep_merge?tab=readme-ov-file#options) for details.
 #
 # @param [Boolean] reverse_merge_order
@@ -44,6 +48,7 @@ define collections::file::writer (
   Hash[String,Any] $file,
   Optional[String[3]] $template = undef,
   Optional[String] $template_body = undef,
+  Enum['epp','erb','auto'] $template_type = 'auto',
   Hash[String,Variant[Boolean,String]] $merge_options = {},
   Boolean $reverse_merge_order = false,
 ) {
@@ -56,11 +61,40 @@ define collections::file::writer (
     }
   }
 
-  if $template != undef {
-    $content = template($template)
-  } else {
-    $content = inline_template($template_body)
+  $epp_params = {
+    items => $items,
+    data  => $data,
   }
+
+  case $template_type {
+    'auto': {
+      if $template != undef and $template =~ /(?i:\.epp)$/ {
+        $content = epp($template, $epp_params)
+      } elsif $template != undef {
+        $content = template($template)
+      } else {
+        $content = inline_template($template_body)
+      }
+    }
+    'erb': {
+      if $template != undef {
+        $content = template($template)
+      } else {
+        $content = inline_template($template_body)
+      }
+    }
+    'epp': {
+      if $template != undef {
+        $content = epp($template, $epp_params)
+      } else {
+        $content = inline_epp($template_body, $epp_params)
+      }
+    }
+    default: {
+      fail('This code branch should be unreachable')
+    }
+  }
+
   file { $file['path']:
     *       => $file,
     content => $content,
