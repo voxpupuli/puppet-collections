@@ -223,7 +223,7 @@ EOF
           },
           'template' => 'collections/yaml.epp',
           'template_body' => nil,
-          'template_type' => 'auto',
+          'template_type' => 'auto'
         )
         is_expected.to contain_collections__debug_executor('file-test::executor::1').with(
           target: 'file-test',
