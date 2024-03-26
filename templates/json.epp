@@ -1,0 +1,4 @@
+<%- | Any $data, Array $items | -%>
+<%=
+  stdlib::to_json($data)
+%>

@@ -1,0 +1,26 @@
+<%- | Array $items,
+      Any $data
+| -%>
+<%-
+  # Sort the fragments by a provided 'order' key and by their definition order
+  $fragments = $items.map |$index, $fragment| {
+    [ $fragment, [get($fragment,'order',1000), $index] ]
+  }.sort |$a, $b| {
+    $a_order = $a[1][0]
+    $a_index = $a[1][1]
+    $b_order = $b[1][0]
+    $b_index = $b[1][1]
+
+    $order_sort = compare($a_order, $b_order)
+    if $order_sort == 0 {
+      compare($a_index, $b_index)
+    } else {
+      $order_sort
+    }
+  }.map |$fragment| {
+    $fragment[0]['content']
+  }
+-%>
+<%=
+  join($fragments, "\n")
+%>
