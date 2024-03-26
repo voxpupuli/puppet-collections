@@ -1,7 +1,7 @@
 {
   "name": "puppet-collections",
   "version": "1.0.0",
-  "author": "ccooke",
+  "author": "Vox Pupuli",
   "summary": "Provide a means to work with collections of data - creating resources from lists of data, or creating files from multiple fragments",
   "license": "MIT",
   "source": "https://github.com/voxpupuli/puppet-collections",
