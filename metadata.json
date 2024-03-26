@@ -1,12 +1,12 @@
 {
-  "name": "ccooke-collections",
-  "version": "0.1.2",
-  "author": "charlesc",
+  "name": "puppet-collections",
+  "version": "1.0.0",
+  "author": "Vox Pupuli",
   "summary": "Provide a means to work with collections of data - creating resources from lists of data, or creating files from multiple fragments",
   "license": "MIT",
-  "source": "https://github.com/ccooke/puppet-collections",
-  "project_page": "https://github.com/ccooke/puppet-collections",
-  "issues_url": "https://github.com/ccooke/puppet-collections/issues",
+  "source": "https://github.com/voxpupuli/puppet-collections",
+  "project_page": "https://github.com/voxpupuli/puppet-collections",
+  "issues_url": "https://github.com/voxpupuli/puppet-collections/issues",
   "dependencies": [
     {
       "name": "puppetlabs-stdlib",
