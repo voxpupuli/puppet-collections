@@ -322,7 +322,7 @@ EOF
 
         is_expected.to contain_file('/foo/bar').with(
           path: '/foo/bar',
-          content: "--- \n"
+          content: "---\n"
         )
       end
 
