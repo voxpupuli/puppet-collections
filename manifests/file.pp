@@ -113,7 +113,7 @@ define collections::file (
   Optional[String[3]] $template = undef,
   Optional[String] $template_body = undef,
   Enum['epp','erb','auto'] $template_type = 'auto',
-  Any $data = undef,
+  Optional[Any] $data = undef,
   Hash[String,Variant[Boolean,String]] $merge_options = {},
 
   Hash[String, Any] $file = {},
