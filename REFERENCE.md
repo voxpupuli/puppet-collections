@@ -291,7 +291,7 @@ Default value: `'auto'`
 
 ##### <a name="-collections--file--data"></a>`data`
 
-Data type: `Any`
+Data type: `Optional[Any]`
 
 Optional. Initial data for the collection.
 If provided, a `collection::append` resource named `<collectionname>::auto-initial-data` will
