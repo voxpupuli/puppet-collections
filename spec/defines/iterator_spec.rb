@@ -8,7 +8,7 @@ describe 'collections::iterator' do
     {
       items: [],
       actions: [],
-      executors: []
+      executors: [],
     }
   end
 

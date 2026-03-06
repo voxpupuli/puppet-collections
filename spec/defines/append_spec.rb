@@ -7,7 +7,7 @@ describe 'collections::append' do
   let(:params) do
     {
       target: 'foo',
-      data: 1
+      data: 1,
     }
   end
 

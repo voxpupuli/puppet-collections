@@ -7,7 +7,7 @@ describe 'collections::tap' do
   let(:params) do
     {
       target: 'foo',
-      item: 1
+      item: 1,
     }
   end
 
@@ -21,7 +21,7 @@ describe 'collections::tap' do
         is_expected.to contain_notify('Collections::Tap: tap').with(
           message: {
             'item' => 1,
-          }
+          },
         )
       end
     end

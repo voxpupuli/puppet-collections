@@ -7,7 +7,7 @@ describe 'collections::register_executor' do
   let(:params) do
     {
       target: 'foo',
-      resource: 'collections::debug_list'
+      resource: 'collections::debug_list',
     }
   end
 
