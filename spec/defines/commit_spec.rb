@@ -8,7 +8,7 @@ describe 'collections::commit' do
     {
       items: [],
       actions: [],
-      executors: []
+      executors: [],
     }
   end
 

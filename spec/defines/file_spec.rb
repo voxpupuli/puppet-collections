@@ -20,7 +20,7 @@ def basic_structure(title, file: true)
     is_expected.to contain_collections__commit(title)
     if file
       is_expected.to contain_collections__register_executor("collections::file::writer::#{title}").with(
-        resource: 'collections::file::writer'
+        resource: 'collections::file::writer',
       )
       is_expected.to contain_collections__file__writer("#{title}::executor::1")
     end
@@ -32,7 +32,7 @@ describe 'collections::file' do
   let(:params) do
     {
       collector: 'foo',
-      template: 'collections/yaml.epp'
+      template: 'collections/yaml.epp',
     }
   end
 
@@ -109,7 +109,7 @@ EOF
             'hash' => {
               'value' => 'initialised to 1',
             },
-          }
+          },
         )
         is_expected.to contain_collections__append('Append to the list, overwrite the hash key').with(
           target: 'file-test',
@@ -120,22 +120,22 @@ EOF
             'hash' => {
               'value' => 'overwritten to 2',
             },
-          }
+          },
         )
         is_expected.to contain_collections__append('Append to the list, overwrite the hash key again').with(
           target: 'file-test',
           data: {
             'list' => [
-              3
+              3,
             ],
             'hash' => {
               'value' => 'finally set to 3',
             },
-          }
+          },
         )
         is_expected.to contain_collections__create('file-test').with(
           target: 'file-test',
-          defaults: {}
+          defaults: {},
         )
         is_expected.to contain_collections__register_executor('collections::file::writer::file-test').with(
           target: 'file-test',
@@ -152,28 +152,28 @@ EOF
             'template_type' => 'auto',
             'merge_options' => {},
             'reverse_merge_order' => false,
-          }
+          },
         )
         is_expected.to contain_collections__register_executor('collections::file::debug::file-test').with(
           name: 'collections::file::debug::file-test',
           target: 'file-test',
-          resource: 'collections::debug_executor'
+          resource: 'collections::debug_executor',
         )
         is_expected.to contain_collections__iterator('file-test')
         is_expected.to contain_collections__commit('file-test').with(
           items: [
             {
               'list' => [1],
-              'hash' => { 'value' => 'initialised to 1' }
+              'hash' => { 'value' => 'initialised to 1' },
             },
             {
               'list' => [2],
-              'hash' => { 'value' => 'overwritten to 2' }
+              'hash' => { 'value' => 'overwritten to 2' },
             },
             {
               'list' => [3],
-              'hash' => { 'value' => 'finally set to 3' }
-            }
+              'hash' => { 'value' => 'finally set to 3' },
+            },
           ],
           actions: [],
           executors: [
@@ -197,23 +197,23 @@ EOF
                 'reverse_merge_order' => false,
               },
             },
-          ]
+          ],
         )
         is_expected.to contain_collections__file__writer('file-test::executor::2').with(
           target: 'file-test',
           items: [
             {
               'list' => [1],
-              'hash' => { 'value' => 'initialised to 1' }
+              'hash' => { 'value' => 'initialised to 1' },
             },
             {
               'list' => [2],
-              'hash' => { 'value' => 'overwritten to 2' }
+              'hash' => { 'value' => 'overwritten to 2' },
             },
             {
               'list' => [3],
-              'hash' => { 'value' => 'finally set to 3' }
-            }
+              'hash' => { 'value' => 'finally set to 3' },
+            },
           ],
           'file' => {
             'owner' => 'root',
@@ -223,42 +223,42 @@ EOF
           },
           'template' => 'collections/yaml.epp',
           'template_body' => nil,
-          'template_type' => 'auto'
+          'template_type' => 'auto',
         )
         is_expected.to contain_collections__debug_executor('file-test::executor::1').with(
           target: 'file-test',
           items: [
             {
               'list' => [1],
-              'hash' => { 'value' => 'initialised to 1' }
+              'hash' => { 'value' => 'initialised to 1' },
             },
             {
               'list' => [2],
-              'hash' => { 'value' => 'overwritten to 2' }
+              'hash' => { 'value' => 'overwritten to 2' },
             },
             {
               'list' => [3],
-              'hash' => { 'value' => 'finally set to 3' }
-            }
-          ]
+              'hash' => { 'value' => 'finally set to 3' },
+            },
+          ],
         )
         is_expected.to contain_notify('Collection file-test:').with(
           message: {
             'items' => [
               {
                 'list' => [1],
-                'hash' => { 'value' => 'initialised to 1' }
+                'hash' => { 'value' => 'initialised to 1' },
               },
               {
                 'list' => [2],
-                'hash' => { 'value' => 'overwritten to 2' }
+                'hash' => { 'value' => 'overwritten to 2' },
               },
               {
                 'list' => [3],
-                'hash' => { 'value' => 'finally set to 3' }
-              }
+                'hash' => { 'value' => 'finally set to 3' },
+              },
             ],
-          }
+          },
         )
 
         is_expected.to contain_file('/tmp/collections-file-test').with(
@@ -266,12 +266,12 @@ EOF
           owner: 'root',
           group: 'root',
           mode: '0644',
-          content: "---\nlist:\n- 1\n- 2\n- 3\nhash:\n  value: finally set to 3\n"
+          content: "---\nlist:\n- 1\n- 2\n- 3\nhash:\n  value: finally set to 3\n",
         )
 
         is_expected.to contain_collections__create('foo').with(
           target: 'foo',
-          defaults: {}
+          defaults: {},
         )
         is_expected.to contain_collections__register_executor('collections::file::writer::foo').with(
           target: 'foo',
@@ -285,7 +285,7 @@ EOF
             'template_type' => 'auto',
             'merge_options' => {},
             'reverse_merge_order' => false,
-          }
+          },
         )
         is_expected.to contain_collections__iterator('foo')
         is_expected.to contain_collections__commit('foo').with(
@@ -305,7 +305,7 @@ EOF
                 'reverse_merge_order' => false,
               },
             },
-          ]
+          ],
         )
         is_expected.to contain_collections__file__writer('foo::executor::1').with(
           target: 'foo',
@@ -317,12 +317,12 @@ EOF
           'template_body' => nil,
           'template_type' => 'auto',
           'merge_options' => {},
-          'reverse_merge_order' => false
+          'reverse_merge_order' => false,
         )
 
         is_expected.to contain_file('/foo/bar').with(
           path: '/foo/bar',
-          content: "---\n"
+          content: "---\n",
         )
       end
 
@@ -396,7 +396,7 @@ EOF
         basic_structure('concat-test')
         it 'Generates the file' do
           is_expected.to contain_file('/tmp/concat-test').with(
-            content: "line 1\nline 2\nline 3\nline 4\n"
+            content: "line 1\nline 2\nline 3\nline 4\n",
           )
         end
       end
@@ -421,7 +421,7 @@ EOF
 
         it 'Generates the file' do
           is_expected.to contain_file('/tmp/template-body-test').with(
-            content: "# Header\n---\nlist:\n- 1\n- 2\n- 3\n- 4\n"
+            content: "# Header\n---\nlist:\n- 1\n- 2\n- 3\n- 4\n",
           )
         end
       end
@@ -448,7 +448,7 @@ EOF
         basic_structure('boolean-test')
         it 'Sets enabled to false' do
           is_expected.to contain_file('/tmp/boolean-test').with(
-            content: "---\nenabled: false\n"
+            content: "---\nenabled: false\n",
           )
         end
       end
@@ -497,28 +497,28 @@ EOF
         basic_structure('type-test-auto-epp')
         it 'Renders epp as epp (auto)' do
           is_expected.to contain_file('/tmp/type-test-auto-epp').with(
-            content: "---\nepp: true\n"
+            content: "---\nepp: true\n",
           )
         end
 
         basic_structure('type-test-auto-erb')
         it 'Renders erb as erb (auto)' do
           is_expected.to contain_file('/tmp/type-test-auto-erb').with(
-            content: "---\nepp: false\n"
+            content: "---\nepp: false\n",
           )
         end
 
         basic_structure('type-test-epp-epp')
         it 'Renders epp as epp' do
           is_expected.to contain_file('/tmp/type-test-epp-epp').with(
-            content: "---\nepp: true\n"
+            content: "---\nepp: true\n",
           )
         end
 
         basic_structure('type-test-erb-erb')
         it 'Renders erb as erb' do
           is_expected.to contain_file('/tmp/type-test-erb-erb').with(
-            content: "---\nepp: false\n"
+            content: "---\nepp: false\n",
           )
         end
       end

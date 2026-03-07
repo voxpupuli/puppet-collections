@@ -11,7 +11,7 @@ describe 'collections::file::writer' do
       file: {
         path: '/foo/bar',
       },
-      template: 'collections/file-test.erb'
+      template: 'collections/file-test.erb',
     }
   end
 

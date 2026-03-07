@@ -7,7 +7,7 @@ describe 'collections::register_action' do
   let(:params) do
     {
       target: 'foo',
-      resource: 'bar'
+      resource: 'bar',
     }
   end
 
