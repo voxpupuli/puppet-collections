@@ -35,7 +35,7 @@ Append an item of any type to a collection.
 
 #### Examples
 
-##### 
+#####
 
 ```puppet
 collections::append { 'User foo is an admin':
@@ -72,7 +72,7 @@ Create a collection and the unerlying `collection::iterator` resource which powe
 
 #### Examples
 
-##### 
+#####
 
 ```puppet
 collections::create { 'collection-name':
@@ -132,7 +132,7 @@ would instead be created by `collections::register_executor`.
 
 #### Examples
 
-##### 
+#####
 
 ```puppet
 
@@ -197,7 +197,7 @@ This template will output the collected data as a JSON document
 
 #### Examples
 
-##### 
+#####
 
 ```puppet
 ## Create a file from multiple string content blocks, with ordering
@@ -335,7 +335,7 @@ for each item added to the collection, passed in as the `item` parameter
 
 #### Examples
 
-##### 
+#####
 
 ```puppet
 collections::create { 'admin_users': }
@@ -422,7 +422,7 @@ once, with all items in the collection passed to it as the `items` parameter
 
 #### Examples
 
-##### 
+#####
 
 ```puppet
 collections::create { 'admin_users': }
@@ -507,7 +507,7 @@ notify resource for the item passed in to it.
 
 #### Examples
 
-##### 
+#####
 
 ```puppet
 collections::create { 'foo': }
@@ -587,4 +587,3 @@ The source object, which will override the contents of dest
 Data type: `Optional[Hash[String, Variant[Boolean,String]]]`
 
 Options for the deep_merge method.
-
